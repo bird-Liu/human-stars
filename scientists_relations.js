@@ -1140,7 +1140,23 @@
       "desc": "同领域先驱与学术影响"
     }
   ],
-  "tesla": [],
+  "tesla": [
+    {
+      "to": "einstein",
+      "type": "peer",
+      "desc": "与爱因斯坦同时代，两人曾通过信件交流物理学思想"
+    },
+    {
+      "to": "maxwell",
+      "type": "influence",
+      "desc": "特斯拉的交流电系统建立在麦克斯韦电磁理论之上"
+    },
+    {
+      "to": "oppenheimer",
+      "type": "influence",
+      "desc": "特斯拉的无线能量传输构想启发了后世一代物理学家"
+    }
+  ],
   "planck": [
     {
       "to": "einstein",
@@ -1421,6 +1437,38 @@
       "to": "shimomura",
       "type": "influence",
       "desc": "同领域先驱与学术影响"
+    }
+  ],
+  "pauli": [
+    {
+      "to": "bohr",
+      "type": "influence",
+      "desc": "在哥本哈根与玻尔共事，深受其量子论影响"
+    },
+    {
+      "to": "heisenberg",
+      "type": "collaborator",
+      "desc": "与海森堡共同构建量子力学的矩阵力学形式"
+    },
+    {
+      "to": "einstein",
+      "type": "influence",
+      "desc": "泡利不相容原理受爱因斯坦相对论思想的启发"
+    },
+    {
+      "to": "dirac",
+      "type": "peer",
+      "desc": "与狄拉克同为量子电动力学的早期开拓者"
+    },
+    {
+      "to": "schrodinger",
+      "type": "peer",
+      "desc": "泡利不相容原理解释了薛定谔方程中电子的排布规律"
+    },
+    {
+      "to": "fermi",
+      "type": "collaborator",
+      "desc": "泡利提出中微子假说，费米在此基础上建立β衰变理论"
     }
   ],
   "huangminglong": [
@@ -2656,6 +2704,33 @@
       "to": "perlmutter",
       "type": "peer",
       "desc": "同代科学探索者"
+    }
+  ],
+  "mcclintock": [
+    {
+      "to": "watson",
+      "type": "peer",
+      "desc": "麦克林托克转座子发现为沃森分子生物学研究提供了遗传学基础"
+    },
+    {
+      "to": "crick",
+      "type": "peer",
+      "desc": "转座子理论影响了克里克对基因调控机制的理解"
+    },
+    {
+      "to": "beadle",
+      "type": "influence",
+      "desc": "与比德尔同期探索基因功能，启发了一基因一酶假说的验证"
+    },
+    {
+      "to": "tatum",
+      "type": "peer",
+      "desc": "转座子研究为塔特姆的基因突变实验提供了新思路"
+    },
+    {
+      "to": "lederberg",
+      "type": "influence",
+      "desc": "转座子发现影响了莱德伯格对细菌遗传重组的研究"
     }
   ],
   "mcdonald": [

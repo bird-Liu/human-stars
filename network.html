@@ -586,8 +586,15 @@ canvas#graphCanvas.dragging-node { cursor:grabbing; }
     ncImg.style.display = '';
     ncName.textContent = n.name;
     ncTitle.textContent = n.title;
-    var connCount = (relations[n.key] || []).length;
-    ncConn.textContent = connCount + ' 位关联人物';
+    var relCount = (relations[n.key] || []).length;
+    var lvl1Count = (relations[n.key] || []).length;
+    var lvl2Set = {};
+    (relations[n.key] || []).forEach(function(r1) {
+      (relations[r1.to] || []).forEach(function(r2) {
+        if (r2.to !== n.key) lvl2Set[r2.to] = true;
+      });
+    });
+    ncConn.textContent = lvl1Count + ' 位直接关联 · ' + Object.keys(lvl2Set).length + ' 位间接关联';
     ncLink.href = 'index.html?p=' + encodeURIComponent(n.key);
     nodeCard.classList.add('visible');
     activeCardNode = idx;

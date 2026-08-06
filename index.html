@@ -6687,6 +6687,8 @@
   // ── B方案优化：从子页面（星之所向/星宇寻踪）返回时，跳过启动动画与自动登录弹窗 ──
   // 离开 index 的链接会先写入 sessionStorage('sm_return')，这里检测并消费该标记
   var smReturning = sessionStorage.getItem('sm_return') === '1';
+  // 先清除可能残留的跳过标记（防止页面刷新后 setTimeout 未执行导致标记永远残留）
+  sessionStorage.removeItem('sm_skip_detail_transition');
   if (smReturning) {
     sessionStorage.removeItem('sm_return');
     // 标记：从子页面返回后，下一次打开人物详情跳过名言/时间线过渡，避免再闪一次“启动动画”
@@ -11800,7 +11802,7 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
         detailTransition.style.display = 'none';
 
         // === 第二段：时间线动画（可阅读，右下角有跳过按钮）===
-        const tlData = allTimelineData[key] || [];
+        const tlData = allTimelineData[key] || (data.timeline || []);
         startTimelineAnimation(() => {
           // === 第三段：时间线结束/跳过后，显示详情内容 ===
           if (panelClosing) return;
