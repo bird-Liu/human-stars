@@ -13193,7 +13193,7 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
       }
     } catch (err) {
       if (typingDiv.parentNode) typingDiv.remove();
-      appendMessage('assistant', '抱歉，无法连接到 AI 服务。请确保服务器已启动（python3 server.py --port 8090）。', false, true);
+      appendMessage('assistant', '抱歉，AI 服务需要在本地运行。\n\n请下载源码后在本地启动：\npython server.py --port 8090\n\n源码地址：https://github.com/bird-Liu/human-stars', false, true);
     }
 
     isChatLoading = false;
