@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>寻星 · 科学人格测试</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg-deep: #000000;
+  --neon-cyan: #ffd479;
+  --text-primary: #f5ecd9;
+  --text-secondary: #b8a888;
+  --text-muted: #6b5d44;
+  --border-faint: rgba(184, 134, 47, 0.18);
+  --border-glow: rgba(255, 212, 121, 0.35);
+  --font-display: 'Cinzel', 'Times New Roman', serif;
+  --font-serif: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', 'SimSun', serif;
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url('images/地球.jpg') no-repeat center center / cover;
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+.ambient-glow {
+  position: fixed;
+  top: -20vh; left: 50%;
+  transform: translateX(-50%);
+  width: 120vw; height: 60vh;
+  background: radial-gradient(ellipse at center, rgba(255, 212, 121, 0.08) 0%, rgba(184, 134, 47, 0.04) 30%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+  animation: ambientBreath 8s ease-in-out infinite;
+}
+@keyframes ambientBreath {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+}
+.page {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 120px 24px 64px;
+}
+.back-link {
+  position: fixed;
+  top: 24px; left: 32px;
+  z-index: 10;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: 2px;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-link:hover { color: var(--neon-cyan); }
+.back-link svg { width: 16px; height: 16px; }
+.page-title {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 40px rgba(255, 212, 121, 0.3);
+  text-align: center;
+}
+.page-subtitle {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--text-muted);
+  letter-spacing: 4px;
+  margin-bottom: 48px;
+  text-align: center;
+}
+.quiz-container {
+  width: 100%;
+  max-width: 640px;
+}
+.quiz-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.quiz-progress-dot {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  transition: background 0.4s ease;
+}
+.quiz-progress-dot.active { background: var(--neon-cyan); }
+.quiz-card {
+  padding: 36px 32px;
+  background: rgba(8, 6, 2, 0.72);
+  border: 1px solid var(--border-faint);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+.quiz-question {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  line-height: 1.7;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.quiz-option {
+  position: relative;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 15px;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.quiz-option:hover {
+  background: rgba(255, 212, 121, 0.08);
+  border-color: rgba(255, 212, 121, 0.25);
+  color: var(--text-primary);
+}
+.quiz-option-letter {
+  flex-shrink: 0;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--text-muted);
+  transition: all 0.25s;
+}
+.quiz-option:hover .quiz-option-letter {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+.result-card {
+  text-align: center;
+}
+.result-tag {
+  display: inline-block;
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #000;
+  background: var(--neon-cyan);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+.result-name {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  letter-spacing: 5px;
+  margin-bottom: 6px;
+}
+.result-title {
+  font-size: 14px;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+  margin-bottom: 24px;
+}
+.result-quote {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  line-height: 1.8;
+  color: var(--neon-cyan);
+  padding: 0 12px;
+  border-left: 2px solid var(--border-glow);
+  margin: 0 auto 28px;
+  max-width: 480px;
+  text-align: left;
+}
+.result-desc {
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+  text-align: left;
+}
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+.result-btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.result-btn.primary {
+  background: var(--neon-cyan);
+  color: #000;
+}
+.result-btn.primary:hover { background: #ffe8b3; }
+.result-btn.secondary {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+}
+.result-btn.secondary:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+.start-card {
+  text-align: center;
+}
+.start-card .start-icon {
+  width: 64px; height: 64px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border-faint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--neon-cyan);
+}
+.start-card .start-icon svg { width: 28px; height: 28px; }
+.start-title {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
+}
+.start-desc {
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+.start-btn {
+  padding: 14px 36px;
+  background: var(--neon-cyan);
+  color: #000;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+.start-btn:hover { background: #ffe8b3; }
+@media (max-width: 640px) {
+  .page { padding-top: 96px; }
+  .page-title { font-size: 30px; letter-spacing: 4px; }
+  .quiz-card { padding: 24px 20px; }
+  .quiz-question { font-size: 18px; }
+  .result-name { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+<div class="ambient-glow"></div>
+
+<a class="back-link" href="index.html">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  返回星图
+</a>
+
+<div class="page">
+  <div class="page-title">STELLAR PERSONA</div>
+  <div class="page-subtitle">科学人格测试 · 你在群星中对应哪一颗？</div>
+
+  <div class="quiz-container" id="quizContainer">
+    <!-- 开始页 -->
+    <div class="quiz-card start-card" id="startScreen">
+      <div class="start-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="start-title">发现你的科学灵魂</div>
+      <div class="start-desc">回答 8 个关于思维方式与价值观的问题，<br>我们将把你对应到 167 位科学巨匠中最像的那一位。</div>
+      <button class="start-btn" onclick="startQuiz()">开始测试</button>
+    </div>
+  </div>
+</div>
+
+<script src="scientists_all.js"></script>
+<script>
+// 加载科学家数据
+var scientistsData = (typeof allScientistsData !== 'undefined' && Array.isArray(allScientistsData)) ? allScientistsData : [];
+
+var quizQuestions = [
+  {
+    q: "面对一个未知难题，你的第一反应是？",
+    options: [
+      { text: "先构建一套优美的数学框架，再从公理出发推导", scores: { hilbert: 4, godel: 3, chern: 3, atiyah: 3, wuwenjun: 2 } },
+      { text: "设计一个实验，用数据和现象说话", scores: { curie: 4, planck: 3, rutherford: 3, brattain: 2 } },
+      { text: "在脑海中做思想实验，想象极端情况", scores: { einstein: 4, schrodinger: 3, turing: 3, hawking: 3 } },
+      { text: "动手做出原型，在试错中找到答案", scores: { edison: 4, tesla: 3, wright: 3, bardeen: 2 } }
+    ]
+  },
+  {
+    q: "你更认同哪一种科学信条？",
+    options: [
+      { text: "上帝不掷骰子，宇宙是确定而优雅的", scores: { einstein: 4, dirac: 3, newton: 3 } },
+      { text: "不确定性本身就是自然界的本质", scores: { heisenberg: 4, bohr: 3, born: 3 } },
+      { text: "真理必须能被证明或证伪", scores: { godel: 4, turing: 3, popper_like: 2 } },
+      { text: "科学应服务于人类福祉", scores: { yuans_longping: 4, tuyouyou: 4, salk: 3, fleming: 3 } }
+    ]
+  },
+  {
+    q: "如果让你选择一个研究时代，你会选？",
+    options: [
+      { text: "古希腊到文艺复兴：追问世界本源", scores: { archimedes: 4, galileo: 3, newton: 3 } },
+      { text: "19 世纪末到 20 世纪初：经典物理大厦将倾", scores: { einstein: 4, planck: 3, curie: 3, rutherford: 3 } },
+      { text: "二战后：原子能、航天与信息革命", scores: { von_neumann: 4, turing: 3, qianxuesen: 3, bardeen: 3 } },
+      { text: "当代：生命科学、AI 与深空探测", scores: { crick: 3, watson: 3, lecun: 4, hinton: 4, yangzhenning: 2 } }
+    ]
+  },
+  {
+    q: "你的思考风格更像？",
+    options: [
+      { text: "视觉化：用图像、几何和直觉理解一切", scores: { einstein: 4, feynman: 3, chern: 3, penrose: 3 } },
+      { text: "符号化：用方程、逻辑和形式系统思考", scores: { godel: 4, turing: 4, hilbert: 3, dirac: 3 } },
+      { text: "实证化：只相信可观测、可重复的事实", scores: { galileo: 4, curie: 3, rutherford: 3, mendel: 3 } },
+      { text: "系统化：把不同领域连接成统一框架", scores: { newton: 4, maxwell: 4, weinberg: 3, yangzhenning: 3 } }
+    ]
+  },
+  {
+    q: "在团队合作中，你通常扮演？",
+    options: [
+      { text: "提出宏伟愿景并指明方向", scores: { einstein: 3, hubble: 3, nanrendong: 4 } },
+      { text: "解决最困难的数学或理论问题", scores: { godel: 4, yangzhenning: 3, wiles_like: 2 } },
+      { text: "在实验室里把想法变成现实", scores: { curie: 4, brattain: 3, mcleod: 2 } },
+      { text: "搭建工具、平台，让所有人效率更高", scores: { berners_lee: 4, torvalds_like: 3, liskov: 3 } }
+    ]
+  },
+  {
+    q: "你最希望被后人记住的是？",
+    options: [
+      { text: "一个改变人类认知的理论", scores: { einstein: 4, darwin: 4, weinberg: 3 } },
+      { text: "一项拯救生命的发现", scores: { fleming: 4, salk: 4, tuyouyou: 4 } },
+      { text: "一种改变世界的技术", scores: { tesla: 4, edison: 3, bardeen: 3, berners_lee: 3 } },
+      { text: "一座连接未知领域的桥梁", scores: { feynman: 3, chern: 3, maxwell: 4 } }
+    ]
+  },
+  {
+    q: "面对权威或主流观点，你会？",
+    options: [
+      { text: "尊重但保持独立判断，必要时独自前行", scores: { einstein: 4, godel: 3, wegener: 3 } },
+      { text: "寻找证据，用实验推翻或修正它", scores: { galileo: 4, curie: 3, rutherford: 3 } },
+      { text: "在主流框架内做精致而扎实的工作", scores: { hilbert: 3, dirac: 3, wigner: 2 } },
+      { text: "跳出框架，从其他学科寻找灵感", scores: { feynman: 3, chern: 3, prigogine: 2 } }
+    ]
+  },
+  {
+    q: "闲暇时，你更可能做什么？",
+    options: [
+      { text: "演奏音乐或写诗，寻找科学之外的灵感", scores: { einstein: 4, maxwell: 3, planck: 3 } },
+      { text: "拆解机械、修理东西或写代码", scores: { turing: 4, tesla: 3, torvalds_like: 3 } },
+      { text: "观察自然，记录植物、动物或星空", scores: { darwin: 4, mendel: 3, hubble: 3 } },
+      { text: "与人辩论哲学、伦理和社会问题", scores: { russell_like: 2, sagan: 3, feynman: 2 } }
+    ]
+  }
+];
+
+// key 别名映射到 scientistsData 中的 key
+var keyAliases = {
+  yuans_longping: 'yuanlongping',
+  popper_like: 'godel',
+  wiles_like: 'godel',
+  torvalds_like: 'turing',
+  berners_lee: 'bernerslee',
+  newton: 'newton',
+  galileo: 'galileo',
+  archimedes: 'archimedes',
+  darwin: 'darwin',
+  mendel: 'mendel',
+  crick: 'crick',
+  watson: 'watson',
+  salk: 'salk',
+  fleming: 'fleming',
+  sagan: 'sagan',
+  wegener: 'wegener',
+  prigogine: 'prigogine',
+  wigner: 'wigner',
+  mcleod: 'mcleod',
+  liskov: 'liskov',
+  penrose: 'penrose',
+  wright: 'wright',
+  edison: 'edison',
+  rutherford: 'rutherford',
+  born: 'born',
+  maxwell: 'maxwell',
+  von_neumann: 'vonneumann',
+  bardeen: 'bardeen',
+  lecun: 'lecun',
+  hinton: 'hinton'
+};
+
+var currentQuestion = 0;
+var userScores = {};
+
+function startQuiz() {
+  currentQuestion = 0;
+  userScores = {};
+  renderQuestion();
+}
+
+function renderQuestion() {
+  var container = document.getElementById('quizContainer');
+  var q = quizQuestions[currentQuestion];
+  var progressHtml = '';
+  for (var i = 0; i < quizQuestions.length; i++) {
+    progressHtml += '<div class="quiz-progress-dot ' + (i <= currentQuestion ? 'active' : '') + '"></div>';
+  }
+
+  var optionsHtml = '';
+  var letters = ['A', 'B', 'C', 'D'];
+  q.options.forEach(function(opt, idx) {
+    optionsHtml +=
+      '<div class="quiz-option" onclick="selectOption(' + idx + ')">' +
+        '<span class="quiz-option-letter">' + letters[idx] + '</span>' +
+        '<span>' + escapeHtml(opt.text) + '</span>' +
+      '</div>';
+  });
+
+  container.innerHTML =
+    '<div class="quiz-progress">' + progressHtml + '</div>' +
+    '<div class="quiz-card">' +
+      '<div class="quiz-question">' + (currentQuestion + 1) + '. ' + escapeHtml(q.q) + '</div>' +
+      '<div class="quiz-options">' + optionsHtml + '</div>' +
+    '</div>';
+}
+
+function selectOption(idx) {
+  var opt = quizQuestions[currentQuestion].options[idx];
+  Object.keys(opt.scores).forEach(function(k) {
+    var realKey = keyAliases[k] || k;
+    userScores[realKey] = (userScores[realKey] || 0) + opt.scores[k];
+  });
+  currentQuestion++;
+  if (currentQuestion < quizQuestions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  var container = document.getElementById('quizContainer');
+  var entries = Object.keys(userScores).map(function(k) {
+    return { key: k, score: userScores[k] };
+  }).sort(function(a, b) { return b.score - a.score; });
+
+  var topKey = entries.length ? entries[0].key : null;
+  var s = scientistsData.find(function(x) { return x.key === topKey; }) || scientistsData[Math.floor(Math.random() * scientistsData.length)];
+
+  var quote = (s.quote || '').split('\n').map(function(q) { return q.trim(); }).filter(function(q) { return q; })[0] || '——';
+
+  container.innerHTML =
+    '<div class="quiz-card result-card">' +
+      '<div class="result-tag">你的科学人格</div>' +
+      '<div class="result-name">' + escapeHtml(s.name || s.key) + '</div>' +
+      '<div class="result-title">' + escapeHtml([s.title, s.years].filter(Boolean).join(' · ')) + '</div>' +
+      '<div class="result-quote">' + escapeHtml(quote) + '</div>' +
+      '<div class="result-desc">' + escapeHtml((s.desc || s.title || '这位科学家与你有着相似的思维方式。点击「进入星图」了解更多生平与贡献。').substring(0, 160)) + '……</div>' +
+      '<div class="result-actions">' +
+        '<a class="result-btn primary" href="index.html?draw=' + encodeURIComponent(s.key) + '">进入星图 · 查看详情</a>' +
+        '<button class="result-btn secondary" onclick="startQuiz()">再测一次</button>' +
+      '</div>' +
+    '</div>';
+}
+
+function escapeHtml(text) {
+  if (text == null) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+</script>
+</body>
+</html>

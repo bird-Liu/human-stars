@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>寻星之旅 · 挑战与收藏</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg-deep: #000000;
+  --neon-cyan: #ffd479;
+  --text-primary: #f5ecd9;
+  --text-secondary: #b8a888;
+  --text-muted: #6b5d44;
+  --border-faint: rgba(184, 134, 47, 0.18);
+  --border-glow: rgba(255, 212, 121, 0.35);
+  --font-display: 'Cinzel', 'Times New Roman', serif;
+  --font-serif: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', 'SimSun', serif;
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url('scr00000.jpg') no-repeat center center / cover;
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+.ambient-glow {
+  position: fixed;
+  top: -20vh; left: 50%;
+  transform: translateX(-50%);
+  width: 120vw; height: 60vh;
+  background: radial-gradient(ellipse at center, rgba(255, 212, 121, 0.08) 0%, rgba(184, 134, 47, 0.04) 30%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+  animation: ambientBreath 8s ease-in-out infinite;
+}
+@keyframes ambientBreath {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+}
+.page {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 120px 24px 64px;
+}
+.back-link {
+  position: fixed;
+  top: 24px; left: 32px;
+  z-index: 10;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: 2px;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-link:hover { color: var(--neon-cyan); }
+.back-link svg { width: 16px; height: 16px; }
+.page-title {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 40px rgba(255, 212, 121, 0.3);
+  text-align: center;
+}
+.page-subtitle {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--text-muted);
+  letter-spacing: 4px;
+  margin-bottom: 48px;
+  text-align: center;
+}
+.journey-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 36px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.journey-tab {
+  padding: 10px 24px;
+  background: rgba(8, 6, 2, 0.72);
+  border: 1px solid var(--border-faint);
+  border-radius: 40px;
+  color: var(--text-secondary);
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.journey-tab:hover, .journey-tab.active {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 20px rgba(255, 212, 121, 0.15);
+}
+.journey-panel {
+  display: none;
+  width: 100%;
+  max-width: 1100px;
+  animation: fadeIn 0.5s ease;
+}
+.journey-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px);} to { opacity: 1; transform: translateY(0);} }
+
+/* 对战 */
+.battle-stage {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 24px;
+  align-items: center;
+  margin-bottom: 32px;
+}
+.battle-card {
+  background: rgba(8, 6, 2, 0.72);
+  border: 1px solid var(--border-faint);
+  border-radius: 20px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.battle-card:hover { border-color: var(--neon-cyan); transform: translateY(-4px); }
+.battle-card.selected {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 30px rgba(255, 212, 121, 0.15);
+}
+.battle-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 16px;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--border-faint);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: var(--text-primary);
+}
+.battle-name { font-family: var(--font-serif); font-size: 22px; margin-bottom: 6px; }
+.battle-title { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+.battle-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 12px; color: var(--text-secondary); }
+.battle-vs {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 20px rgba(255, 212, 121, 0.4);
+}
+.battle-actions { text-align: center; margin-bottom: 24px; }
+.battle-btn {
+  padding: 12px 36px;
+  background: linear-gradient(90deg, rgba(255,212,121,0.2), rgba(255,212,121,0.1));
+  border: 1px solid var(--neon-cyan);
+  border-radius: 40px;
+  color: var(--neon-cyan);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.battle-btn:hover { background: rgba(255,212,121,0.3); box-shadow: 0 0 24px rgba(255, 212, 121, 0.2); }
+.battle-result {
+  background: rgba(8, 6, 2, 0.72);
+  border: 1px solid var(--border-faint);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  min-height: 120px;
+}
+.battle-result-title { font-family: var(--font-serif); font-size: 18px; color: var(--neon-cyan); margin-bottom: 12px; }
+.battle-result-text { font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
+
+/* 公式收藏墙 */
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+.formula-card {
+  background: rgba(8, 6, 2, 0.72);
+  border: 1px solid var(--border-faint);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+.formula-card:hover { border-color: var(--neon-cyan); transform: translateY(-3px); }
+.formula-card.collected { border-color: var(--neon-cyan); box-shadow: 0 0 20px rgba(255, 212, 121, 0.12); }
+.formula-card.collected::after {
+  content: '★';
+  position: absolute;
+  top: 10px; right: 12px;
+  color: var(--neon-cyan);
+  font-size: 14px;
+}
+.formula-name { font-family: var(--font-serif); font-size: 16px; margin-bottom: 8px; }
+.formula-expr {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-size: 20px;
+  color: var(--neon-cyan);
+  margin-bottom: 10px;
+  min-height: 32px;
+}
+.formula-desc { font-size: 12px; color: var(--text-muted); line-height: 1.6; }
+.formula-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+.formula-progress {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.formula-progress span { color: var(--neon-cyan); font-weight: 500; }
+
+/* 每日谜题 */
+.quiz-box {
+  background: rgba(8, 6, 2, 0.72);
+  border: 1px solid var(--border-faint);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.quiz-question {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  margin-bottom: 24px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+.quiz-options { display: flex; flex-direction: column; gap: 12px; }
+.quiz-option {
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-faint);
+  border-radius: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  font-size: 14px;
+}
+.quiz-option:hover { border-color: var(--neon-cyan); color: var(--text-primary); }
+.quiz-option.correct { border-color: #6bffb8; background: rgba(107,255,184,0.08); color: #6bffb8; }
+.quiz-option.wrong { border-color: #ff6b6b; background: rgba(255,107,107,0.08); color: #ff6b6b; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.7; }
+.quiz-result { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border-faint); }
+.quiz-result-title { font-family: var(--font-serif); color: var(--neon-cyan); margin-bottom: 8px; }
+.quiz-result-text { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+.quiz-next {
+  margin-top: 16px;
+  padding: 10px 28px;
+  background: rgba(255,212,121,0.12);
+  border: 1px solid var(--neon-cyan);
+  border-radius: 30px;
+  color: var(--neon-cyan);
+  cursor: pointer;
+  font-family: var(--font-serif);
+  letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  .battle-stage { grid-template-columns: 1fr; }
+  .battle-vs { order: -1; margin: 12px 0; }
+  .page { padding-top: 100px; }
+}
+</style>
+</head>
+<body>
+<div class="ambient-glow"></div>
+<a class="back-link" href="index.html" onclick="sessionStorage.setItem('sm_return','1')">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  返回星图
+</a>
+
+<div class="page">
+  <div class="page-title">寻星之旅</div>
+  <div class="page-subtitle">挑战 · 收藏 · 每日谜题</div>
+
+  <div class="journey-tabs">
+    <div class="journey-tab active" data-tab="battle" onclick="switchTab('battle')">科学家对战</div>
+    <div class="journey-tab" data-tab="formula" onclick="switchTab('formula')">公式收藏墙</div>
+    <div class="journey-tab" data-tab="puzzle" onclick="switchTab('puzzle')">每日科学谜题</div>
+  </div>
+
+  <!-- 对战 -->
+  <div class="journey-panel active" id="panel-battle">
+    <div class="battle-stage">
+      <div class="battle-card" id="battleLeft" onclick="selectBattleSide('left')">
+        <div class="battle-avatar" id="battleLeftAvatar">?</div>
+        <div class="battle-name" id="battleLeftName">点击选择</div>
+        <div class="battle-title" id="battleLeftTitle">——</div>
+        <div class="battle-stats" id="battleLeftStats"></div>
+      </div>
+      <div class="battle-vs">VS</div>
+      <div class="battle-card" id="battleRight" onclick="selectBattleSide('right')">
+        <div class="battle-avatar" id="battleRightAvatar">?</div>
+        <div class="battle-name" id="battleRightName">点击选择</div>
+        <div class="battle-title" id="battleRightTitle">——</div>
+        <div class="battle-stats" id="battleRightStats"></div>
+      </div>
+    </div>
+    <div class="battle-actions">
+      <button class="battle-btn" onclick="randomBattlePair()">随机配对</button>
+      <button class="battle-btn" onclick="startBattle()" style="margin-left:12px;">开始比拼</button>
+    </div>
+    <div class="battle-result" id="battleResult">
+      <div class="battle-result-title">选择两位科学巨匠，开启跨时空对决</div>
+      <div class="battle-result-text">系统将从影响力、论文贡献、学生传承、寿命跨度、诺奖荣誉五个维度进行趣味 PK。</div>
+    </div>
+  </div>
+
+  <!-- 公式墙 -->
+  <div class="journey-panel" id="panel-formula">
+    <div class="formula-progress">已收藏 <span id="formulaCount">0</span> / <span id="formulaTotal">0</span> 个科学印记</div>
+    <div class="formula-grid" id="formulaGrid"></div>
+  </div>
+
+  <!-- 谜题 -->
+  <div class="journey-panel" id="panel-puzzle">
+    <div class="quiz-box" id="puzzleBox">
+      <div class="quiz-question" id="puzzleQuestion">正在生成今日谜题……</div>
+      <div class="quiz-options" id="puzzleOptions"></div>
+      <div class="quiz-result" id="puzzleResult" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script src="scientists_all.js"></script>
+<script src="scientists_meta.js"></script>
+<script src="scientists_relations.js"></script>
+<script>
+(function(){
+  'use strict';
+  var scientistsData = (typeof allScientistsData !== 'undefined') ? allScientistsData : [];
+  if (typeof window.__scientistsMeta !== 'undefined' && scientistsData.length) {
+    scientistsData.forEach(function(s){
+      var m = window.__scientistsMeta[s.key];
+      if (m) { s.category = m.category || s.category; s.timeline = m.timeline || s.timeline; }
+    });
+  }
+
+  function escapeHtml(t){ return (t||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c];}); }
+
+  function parseYear(years){
+    var m = String(years||'').match(/(\d{4})/);
+    return m ? parseInt(m[1],10) : null;
+  }
+
+  function getStats(s){
+    var rels = (window.__scientistsRelations || {})[s.key] || [];
+    var papers = (s.papers || []).length;
+    var honors = (s.honors || '').split('\n').filter(function(x){return x.trim();}).length;
+    return {
+      influence: Math.min(100, Math.round((rels.length * 12) + 20)),
+      papers: papers,
+      students: Math.min(100, Math.round(rels.filter(function(r){return r.type==='student';}).length * 25 + 10)),
+      lifespan: parseYear(s.years) ? Math.min(100, Math.round((new Date().getFullYear() - parseYear(s.years)) * 0.6)) : 50,
+      honors: Math.min(100, honors * 15 + 20)
+    };
+  }
+
+  // ===== Tabs =====
+  window.switchTab = function(tab){
+    document.querySelectorAll('.journey-tab').forEach(function(el){ el.classList.toggle('active', el.dataset.tab===tab); });
+    document.querySelectorAll('.journey-panel').forEach(function(el){ el.classList.toggle('active', el.id==='panel-'+tab); });
+    if (tab==='formula') renderFormulaWall();
+    if (tab==='puzzle') initPuzzle();
+  };
+
+  // ===== Battle =====
+  var battleLeft = null, battleRight = null, selectingSide = null;
+  window.selectBattleSide = function(side){
+    selectingSide = side;
+    var names = scientistsData.map(function(s,i){ return (i+1)+'. '+s.name; }).join('\n');
+    var input = prompt('输入科学家编号或姓名：\n' + names.substring(0,800) + '\n…');
+    if (!input) return;
+    var s = null;
+    var num = parseInt(input,10);
+    if (!isNaN(num) && scientistsData[num-1]) s = scientistsData[num-1];
+    if (!s) s = scientistsData.find(function(x){ return x.name===input || x.key===input; });
+    if (!s) { alert('未找到该科学家'); return; }
+    if (side==='left') { battleLeft=s; } else { battleRight=s; }
+    renderBattleCards();
+  };
+  window.randomBattlePair = function(){
+    if (scientistsData.length < 2) return;
+    battleLeft = scientistsData[Math.floor(Math.random()*scientistsData.length)];
+    do { battleRight = scientistsData[Math.floor(Math.random()*scientistsData.length)]; } while (battleRight===battleLeft);
+    renderBattleCards();
+  };
+  function renderBattleCards(){
+    ['left','right'].forEach(function(side){
+      var s = side==='left'?battleLeft:battleRight;
+      var avatar = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Avatar');
+      var name = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Name');
+      var title = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Title');
+      var stats = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Stats');
+      var card = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1));
+      if (!s) {
+        avatar.textContent='?'; avatar.style.backgroundImage='';
+        name.textContent='点击选择'; title.textContent='——'; stats.innerHTML='';
+        card.classList.remove('selected'); return;
+      }
+      card.classList.add('selected');
+      avatar.textContent='';
+      avatar.style.backgroundImage = "url('images/"+s.key+".jpg')";
+      name.textContent = s.name;
+      title.textContent = s.title || s.category || '科学巨匠';
+      var st = getStats(s);
+      stats.innerHTML = '<div>影响力 '+st.influence+'</div><div>论文 '+st.papers+'</div><div>传承 '+st.students+'</div><div>寿命分 '+st.lifespan+'</div>';
+    });
+  }
+  window.startBattle = function(){
+    if (!battleLeft || !battleRight) { alert('请先选择两位科学家'); return; }
+    var a=getStats(battleLeft), b=getStats(battleRight);
+    var scoreA=0, scoreB=0, details=[];
+    function cmp(label, va, vb){
+      if (va>vb) { scoreA++; details.push(label+'：'+battleLeft.name+' 胜出'); }
+      else if (vb>va) { scoreB++; details.push(label+'：'+battleRight.name+' 胜出'); }
+      else { details.push(label+'：势均力敌'); }
+    }
+    cmp('影响力', a.influence, b.influence);
+    cmp('论文著作', a.papers, b.papers);
+    cmp('学生传承', a.students, b.students);
+    cmp('寿命跨度', a.lifespan, b.lifespan);
+    cmp('荣誉成就', a.honors, b.honors);
+    var winner = scoreA>scoreB ? battleLeft : (scoreB>scoreA ? battleRight : null);
+    var battleCount = parseInt(localStorage.getItem('star_battle_count') || '0', 10) + 1;
+    localStorage.setItem('star_battle_count', String(battleCount));
+    document.getElementById('battleResult').innerHTML =
+      '<div class="battle-result-title">'+(winner ? '🏆 '+winner.name+' 获胜' : '⚖️ 平局')+'</div>'+
+      '<div class="battle-result-text">'+battleLeft.name+' '+scoreA+' : '+scoreB+' '+battleRight.name+'<br>'+details.join(' · ')+'</div>';
+  };
+
+  // ===== Formula Wall =====
+  var FORMULA_MAP = {
+    einstein: {expr:'E=mc²', desc:'质能等价方程，揭示质量与能量可相互转化。'},
+    newton: {expr:'F=ma', desc:'牛顿第二定律，力是质量与加速度的乘积。'},
+    maxwell: {expr:'∇·E=ρ/ε₀', desc:'麦克斯韦方程组之一，电场与电荷分布的关系。'},
+    planck: {expr:'E=hν', desc:'普朗克关系，光子能量与频率成正比。'},
+    curie: {expr:'A=λN', desc:'放射性活度与衰变常数、原子核数的关系。'},
+    schrodinger: {expr:'iℏ∂ψ/∂t=Ĥψ', desc:'薛定谔方程，量子态随时间演化。'},
+    hawking: {expr:'T=ℏc³/8πGMk', desc:'霍金辐射温度，黑洞也会蒸发。'},
+    turing: {expr:'M=(Q,Σ,δ)', desc:'图灵机模型，计算理论的基石。'},
+    hubble: {expr:'v=H₀d', desc:'哈勃定律，星系退行速度与距离成正比。'},
+    bohr: {expr:'mvr=nℏ', desc:'玻尔角动量量子化条件。'},
+    heisenberg: {expr:'ΔxΔp≥ℏ/2', desc:'不确定性原理，微观粒子的基本限制。'},
+    pythagoras: {expr:'a²+b²=c²', desc:'勾股定理，直角三角形三边关系。'},
+    gauss: {expr:'∮E·dA=Q/ε₀', desc:'高斯定律，静电场通量与电荷关系。'},
+    archimedes: {expr:'F=ρgV', desc:'阿基米德浮力原理。'},
+    fermat: {expr:'aⁿ+bⁿ≠cⁿ', desc:'费马大定理，当n>2时不存在正整数解。'},
+    euler: {expr:'e^{iπ}+1=0', desc:'欧拉恒等式，被称为最美数学公式。'},
+    hilbert: {expr:'ℓ²', desc:'希尔伯特空间，量子力学与泛函分析的核心。'},
+    godel: {expr:'G ⟺ ¬Prov(G)', desc:'哥德尔不完备定理的核心构造。'},
+    chern: {expr:'∫Ω(E)', desc:'陈类，微分几何与拓扑学的重要示性类。'},
+    hualuogeng: {expr:'华氏不等式', desc:'华罗庚在多复变函数与数论中的贡献。'},
+    qianxuesen: {expr:'Kármán-Tsien', desc:'卡门-钱近似公式，空气动力学经典方法。'},
+    yuanlongping: {expr:'杂交优势', desc:'水稻杂种优势利用，让亿万人远离饥饿。'},
+    tuyouyou: {expr:'青蒿素 C₁₅H₂₂O₅', desc:'从黄花蒿中提取的抗疟有效成分。'},
+    dengjiaxian: {expr:'邓稼先方程', desc:'核武器理论设计中的关键方程组。'},
+    wright: {expr:'L/D', desc:'升阻比，飞行器气动效率的核心指标。'},
+    tesla: {expr:'ω=2πf', desc:'交流电角频率与频率的关系。'},
+    edison: {expr:'I=V/R', desc:'欧姆定律，电流与电压、电阻的关系。'},
+    darwin: {expr:'dN/dt = rN', desc:'指数增长模型，种群动态的基础。'},
+    watson: {expr:'A-T, G-C', desc:'DNA 碱基互补配对原则。'},
+    crick: {expr:'A-T, G-C', desc:'DNA 双螺旋结构的碱基配对规律。'},
+    mendel: {expr:'3:1', desc:'孟德尔分离定律的表型比例。'},
+    rutherford: {expr:'N=N₀e^{-λt}', desc:'放射性衰变定律。'},
+    fermi: {expr:'σ ∝ v^{-1}', desc:'费米相互作用与慢中子俘获截面关系。'},
+    dirac: {expr:'(iγᵘ∂ᵤ-m)ψ=0', desc:'狄拉克方程，描述自旋1/2粒子。'},
+    pauli: {expr:'ψ(…,xᵢ,…,xⱼ,…)=-ψ(…,xⱼ,…,xᵢ,…)', desc:'泡利不相容原理。'},
+    landau: {expr:'F ∝ A^{2/3}', desc:'液滴模型，原子核结合能的经验规律。'},
+    weinberg: {expr:'L = L_SM', desc:'电弱统一理论的标准模型拉氏量。'},
+    higgs: {expr:'m_h=125 GeV', desc:'希格斯玻色子的质量，2012年被实验发现。'}
+  };
+
+  function getFormula(s){
+    var f = FORMULA_MAP[s.key];
+    if (f) return f;
+    var titles = {
+      '物理学':'探索自然规律','天文学':'仰望星空','数学':'数学之美','生命科学':'生命奥秘',
+      '化学':'元素之舞','计算机科学':'计算思维','工程学':'工程实践','地球科学':'地球脉动','其他':'跨界先锋'
+    };
+    return {expr: s.title || s.category || '科学精神', desc: (s.desc||'').substring(0,60)+'……'};
+  }
+
+  function renderFormulaWall(){
+    var grid = document.getElementById('formulaGrid');
+    var collected = JSON.parse(localStorage.getItem('star_formula_collected') || '[]');
+    grid.innerHTML = '';
+    if (!scientistsData.length) { grid.innerHTML = '<div class="formula-empty">暂无科学家数据</div>'; return; }
+    document.getElementById('formulaTotal').textContent = scientistsData.length;
+    document.getElementById('formulaCount').textContent = collected.length;
+    scientistsData.forEach(function(s){
+      var f = getFormula(s);
+      var isCollected = collected.indexOf(s.key) > -1;
+      var card = document.createElement('div');
+      card.className = 'formula-card' + (isCollected?' collected':'');
+      card.innerHTML = '<div class="formula-name">'+escapeHtml(s.name)+'</div>'+
+        '<div class="formula-expr">'+escapeHtml(f.expr)+'</div>'+
+        '<div class="formula-desc">'+escapeHtml(f.desc)+'</div>';
+      card.onclick = function(){
+        var idx = collected.indexOf(s.key);
+        if (idx>-1) collected.splice(idx,1); else collected.push(s.key);
+        localStorage.setItem('star_formula_collected', JSON.stringify(collected));
+        renderFormulaWall();
+      };
+      grid.appendChild(card);
+    });
+  }
+
+  // ===== Daily Puzzle =====
+  var puzzleQuestions = [
+    {q:'哪位科学家提出了质能方程 E=mc²？', options:['牛顿','爱因斯坦','麦克斯韦','玻尔'], ans:1, detail:'爱因斯坦在1905年提出狭义相对论，并导出著名的质能方程。'},
+    {q:'DNA 双螺旋结构是由哪两位科学家共同发现的？', options:['达尔文与孟德尔','沃森与克里克','居里夫妇','卢瑟福与玻尔'], ans:1, detail:'1953年，沃森和克里克在《自然》杂志发表DNA双螺旋结构模型。'},
+    {q:'「中国天眼」FAST 工程的首席科学家兼总工程师是？', options:['钱学森','南仁东','邓稼先','袁隆平'], ans:1, detail:'南仁东被誉为「中国天眼之父」，主导FAST从论证到建成的22年历程。'},
+    {q:'不确定性原理 Δx·Δp ≥ ℏ/2 的提出者是？', options:['薛定谔','海森堡','狄拉克','泡利'], ans:1, detail:'维尔纳·海森堡在1927年提出不确定性原理。'},
+    {q:'发现青蒿素并获诺贝尔生理学或医学奖的中国科学家是？', options:['屠呦呦','袁隆平','钱学森','邓稼先'], ans:0, detail:'屠呦呦因发现青蒿素治疗疟疾的新疗法获2015年诺贝尔生理学或医学奖。'},
+    {q:'广义相对论预言的光线弯曲在1919年日全食观测中得到证实，该理论由谁提出？', options:['牛顿','爱因斯坦','霍金','哈勃'], ans:1, detail:'爱因斯坦1915年完成广义相对论，将引力解释为时空弯曲。'},
+    {q:'「交流电之父」是谁？', options:['爱迪生','特斯拉','法拉第','麦克斯韦'], ans:1, detail:'尼古拉·特斯拉发明了实用的多相交流感应电动机，奠定现代电力工业基础。'},
+    {q:'标准模型中预言的希格斯玻色子在哪一年被大型强子对撞机发现？', options:['2008','2010','2012','2015'], ans:2, detail:'2012年7月，CERN宣布发现质量约125 GeV的新玻色子，后被确认为希格斯玻色子。'}
+  ];
+  var currentPuzzle = null;
+  function initPuzzle(){
+    var idx = Math.floor(Math.random()*puzzleQuestions.length);
+    currentPuzzle = puzzleQuestions[idx];
+    document.getElementById('puzzleQuestion').textContent = currentPuzzle.q;
+    var opts = document.getElementById('puzzleOptions');
+    opts.innerHTML = '';
+    document.getElementById('puzzleResult').style.display='none';
+    currentPuzzle.options.forEach(function(opt,i){
+      var btn = document.createElement('button');
+      btn.className = 'quiz-option';
+      btn.textContent = String.fromCharCode(65+i)+'. '+opt;
+      btn.onclick = function(){ answerPuzzle(i, btn); };
+      opts.appendChild(btn);
+    });
+  }
+  function answerPuzzle(i, btn){
+    var correct = i===currentPuzzle.ans;
+    document.querySelectorAll('.quiz-option').forEach(function(el, idx){
+      el.classList.add('disabled');
+      if (idx===currentPuzzle.ans) el.classList.add('correct');
+      else if (idx===i && !correct) el.classList.add('wrong');
+    });
+    var res = document.getElementById('puzzleResult');
+    res.style.display = 'block';
+    res.innerHTML = '<div class="quiz-result-title">'+(correct?'回答正确':'回答错误')+'</div>'+
+      '<div class="quiz-result-text">'+currentPuzzle.detail+'</div>'+
+      '<button class="quiz-next" onclick="initPuzzle()">下一题</button>';
+    if (correct) {
+      var streak = parseInt(localStorage.getItem('star_puzzle_streak')||'0',10)+1;
+      localStorage.setItem('star_puzzle_streak', String(streak));
+    } else {
+      localStorage.setItem('star_puzzle_streak','0');
+    }
+  }
+  window.initPuzzle = initPuzzle;
+
+  // init
+  randomBattlePair();
+})();
+</script>
+</body>
+</html>

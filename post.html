@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人类群星闪耀时 · TRAE AI 创意大赛作品帖</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg-soft: #14141c;
+    --gold: #d4af37;
+    --gold-soft: #ffd479;
+    --text: #e8e8e8;
+    --text-dim: #9a9aa8;
+    --border: rgba(212,175,55,0.18);
+    --code-bg: #1a1a25;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    line-height: 1.85;
+    font-size: 16px;
+  }
+  .container { max-width: 920px; margin: 0 auto; padding: 40px 28px 120px; }
+
+  /* Hero */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 50px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 50px;
+  }
+  .hero-tag {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(212,175,55,0.08);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--gold-soft);
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .hero-title {
+    font-size: clamp(28px, 4.5vw, 44px);
+    background: linear-gradient(180deg, #ffd479 20%, #8b6914 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 900;
+    letter-spacing: 4px;
+    margin-bottom: 14px;
+  }
+  .hero-subtitle {
+    color: var(--text-dim);
+    font-size: 15px;
+    letter-spacing: 3px;
+  }
+
+  /* Section */
+  section { margin-bottom: 60px; }
+  h2 {
+    font-size: 26px;
+    color: var(--gold-soft);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 22px;
+    background: var(--gold);
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  h3 {
+    font-size: 19px;
+    color: #fff;
+    margin: 32px 0 14px;
+    padding-left: 14px;
+    border-left: 3px solid var(--gold);
+  }
+  h4 {
+    font-size: 16px;
+    color: var(--gold-soft);
+    margin: 18px 0 10px;
+  }
+  p { margin-bottom: 14px; color: #d6d6dc; }
+  strong { color: var(--gold-soft); font-weight: 600; }
+  ul, ol { padding-left: 24px; margin-bottom: 16px; }
+  li { margin-bottom: 8px; color: #d6d6dc; }
+
+  /* Image */
+  .screenshot {
+    display: block;
+    max-width: 100%;
+    margin: 22px auto;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .screenshot-caption {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: -14px;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+
+  /* Code */
+  code, pre {
+    font-family: 'SF Mono', Monaco, Consolas, monospace;
+    font-size: 13.5px;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: var(--gold-soft);
+    border: 1px solid rgba(212,175,55,0.1);
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 16px 18px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 14px 0;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  pre code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: #e8e8e8;
+  }
+
+  /* Session ID box */
+  .session-box {
+    background: linear-gradient(135deg, rgba(212,175,55,0.06), rgba(212,175,55,0.02));
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin: 16px 0 24px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .session-box strong {
+    display: block;
+    color: var(--gold-soft);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .session-box code {
+    font-size: 12px;
+    word-break: break-all;
+    color: #c9c9d4;
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  /* Feature card */
+  .feature-list { counter-reset: feat; }
+  .feature-item {
+    counter-increment: feat;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px 28px;
+    margin-bottom: 22px;
+  }
+  .feature-item h3 {
+    margin-top: 0;
+    padding-left: 36px;
+    position: relative;
+    border-left: none;
+  }
+  .feature-item h3::before {
+    content: counter(feat, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-family: monospace;
+    font-size: 18px;
+  }
+
+  /* Address box */
+  .address-box {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 22px 26px;
+    margin: 18px 0;
+  }
+  .address-box h4 { margin-top: 0; }
+
+  /* Timeline list */
+  .timeline-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .timeline-list li {
+    padding-left: 20px;
+    position: relative;
+    margin-bottom: 10px;
+  }
+  .timeline-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+  }
+
+  /* Tech grid */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+  }
+  .tech-grid div {
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: var(--text);
+  }
+
+  /* Back to top */
+  .back-top {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    color: var(--gold-soft);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s;
+    z-index: 10;
+  }
+  .back-top:hover {
+    background: rgba(212,175,55,0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    padding: 40px 20px 0;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-tag">学习工作 · TRAE AI 创意大赛</div>
+    <h1 class="hero-title">人类群星闪耀时</h1>
+    <div class="hero-subtitle">交互式科学家群星 Web 体验</div>
+  </header>
+
+  <!-- 一、Demo 简介 -->
+  <section>
+    <h2>一、Demo 简介</h2>
+    <p><strong>是什么</strong>：「人类群星闪耀时」是一个纯前端单文件交互式 Web 体验作品，以深色星空为载体，将 20 位中外科学家化作漫天星辰。用户在星空中漫游、点击星点即可触发该科学家的三段式沉浸式启动流程（诗意名言 → 关键时间线动画 → 全屏详情面板），还包含独立的「星之所向」抽卡页面，随机抽取一位科学家并附带电影级镜头放大过渡。</p>
+    <p><strong>面向谁</strong>：对科学史与人类文明怀有敬意的学习者、科普爱好者、以及喜欢沉浸式交互体验的年轻用户。作品既是科普学习材料，也是一种诗意的文化致敬。</p>
+
+    <h3>主要功能</h3>
+    <div class="feature-list">
+      <div class="feature-item">
+        <h3>星图漫游 · 群星点击探索</h3>
+        <p>首页是一片深色银河星空，20 位科学家（南仁东、哥白尼、牛顿、爱因斯坦、霍金、屠呦呦……）以发光圆点的形式散布其中，星点带有长周期显隐与粒子飘动效果。鼠标悬停时星辰高亮放大，点击进入该科学家的详情流程。</p>
+        <img class="screenshot" src="post_screenshots/screen_5_homepage.png" alt="首页星空全景">
+        <p class="screenshot-caption">▲ 首页星空全景：标题 + 银河 + 20 颗星辰</p>
+      </div>
+
+      <div class="feature-item">
+        <h3>三段式沉浸启动流程</h3>
+        <p>每位科学家点击后依次呈现：① 诗意名言过渡页（如"南仁东：感官安宁，万籁无声"）② 关键时间线动画过渡页（可跳过）③ 全屏详情面板，含人物简介、名言金句、代表贡献、关键时间线、人物配图（顶部 banner + 圆形头像 + 简介照片栏三处配图）。</p>
+        <img class="screenshot" src="post_screenshots/screen_3_banner.png" alt="伽利略详情页">
+        <p class="screenshot-caption">▲ 伽利略详情页：顶部 banner + 圆形头像 + 简介文字</p>
+      </div>
+
+      <div class="feature-item">
+        <h3>星之所向 · 抽卡页面</h3>
+        <p>独立页面 <code>draw.html</code>，底部"触碰星辰"按钮随机抽取一位科学家。点击后触发电影级序列：圆形光芒旋转爆发 → 星星斜向坠落带尾光 → <strong>镜头跟随主体放大</strong>（背景星点辐射后退模拟长焦变焦）→ 全白闪光 → 全黑 → 跳转至该科学家详情页，人物出现。</p>
+        <img class="screenshot" src="post_screenshots/screen_7_draw.png" alt="星之所向抽卡页面">
+        <p class="screenshot-caption">▲ 星之所向：金色标题 + 5 层群山 + 椭圆玻璃按钮</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 二、创作思路 -->
+  <section>
+    <h2>二、Demo 创作思路</h2>
+    <p><strong>灵感来源</strong>：作品名借用茨威格《人类群星闪耀时》——那些"人类群星闪耀"的瞬间，正是科学家们用一生照亮文明前进方向的时刻。把科学家比作星辰，既是对"仰望星空"这一科学家群像的诗意隐喻，也呼应了南仁东建造"中国天眼"仰望宇宙的故事。</p>
+    <p><strong>想解决的问题</strong>：传统科普页面往往以列表/卡片平铺，信息密度高但情感浓度低，用户难以产生"与历史人物对话"的沉浸感。本作品尝试把"了解一位科学家"包装成一次仪式感十足的旅程——从星空中发现一颗星，到名言叩门，到时间线铺陈，最后才进入完整详情，让学习过程本身具有节奏感与诗意。</p>
+    <p><strong>为什么做这个方向</strong>：选择 Web 单文件形态，是因为它即开即用、零部署成本，最适合作为大赛 Demo 传播；选择"星空 + 科学家"主题，是因为视觉上能用 Canvas 发挥出沉浸感，内容上又能承载真实有价值的科普信息，做到"好看"与"有用"兼得。在交互设计上刻意区分了"自由探索（首页星图）"与"随机抽取（星之所向）"两种模式，前者主动学习、后者带有盲盒惊喜感，覆盖不同学习心态。</p>
+  </section>
+
+  <!-- 三、体验地址 -->
+  <section>
+    <h2>三、Demo 体验地址</h2>
+    <div class="address-box">
+      <h4>方式一：在线体验链接</h4>
+      <p>http://localhost:8000/ （本地运行，启动方式见下方说明）</p>
+    </div>
+    <div class="address-box">
+      <h4>方式二：Zip 打包下载</h4>
+      <p>已将完整作品打包为 zip 上传社区，包含：</p>
+      <ul class="timeline-list">
+        <li><code>index.html</code>（主站，约 3700 行，内联 CSS + JS）</li>
+        <li><code>draw.html</code>（星之所向抽卡页面）</li>
+        <li><code>images/</code>（银河背景图 + 17 位科学家肖像图）</li>
+      </ul>
+      <p style="margin-top:12px;">本地运行方式：解压后进入目录，执行 <code>python3 -m http.server 8000</code>，浏览器访问 <code>http://localhost:8000/</code> 即可。</p>
+    </div>
+  </section>
+
+  <!-- 四、TRAE 实践过程 -->
+  <section>
+    <h2>四、TRAE 实践过程</h2>
+    <p>整个作品从零到一全程使用 TRAE 对话式开发完成，未手写一行代码。以下是关键开发节点：</p>
+
+    <h3>步骤 1：首页星空搭建（2026/6/19）</h3>
+    <p>向 TRAE 描述"做一个深色星空背景的科学家群星网站"的初始需求，TRAE 生成单文件 HTML 骨架，并用 Canvas 2D 实现了发光星点（径向渐变光晕）、长周期 sine 波显隐循环、微小漂浮粒子（边界反弹）、银河全屏背景图等视觉效果。首页加载页采用金色书法"人类群星闪耀时"+ 人物侧脸剪影，LOADING 100% 后渐入星空。</p>
+    <img class="screenshot" src="post_screenshots/screen_4_loading.png" alt="首页加载页">
+    <p class="screenshot-caption">▲ 首页加载页：金色书法 + 人物侧脸剪影 + LOADING 100%</p>
+    <div class="session-box">
+      <strong>Session ID</strong>
+      <code>3172517555486793:4449c56fd462d56b2dcfc2a39eca4f6e_6a353ba468855b8a7e95470e.6a353ba57e856600ddf6d67c.6a353ba468855b8a7e95470f</code>
+    </div>
+
+    <h3>步骤 2：20 位科学家数据与详情面板（2026/6/20）</h3>
+    <p>要求 TRAE 补充 20 位科学家的完整数据（含简介、名言、贡献、时间线），并为每位科学家生成独立详情面板。TRAE 一次性产出 20 个 <code>detail-panel-inner</code> 面板，每个包含 INTRO/QUOTE/CONTRIBUTIONS/TIMELINE 四个 section，并设计三段式启动流程（名言过渡 → 时间线动画 → 详情面板）。</p>
+    <p>时间线动画效果：节点沿水平轴逐个点亮，配年份与事件描述，右下角"跳过"按钮可快进。</p>
+    <img class="screenshot" src="post_screenshots/screen_6_timeline.png" alt="时间线动画过渡页">
+    <p class="screenshot-caption">▲ 时间线动画过渡页：南仁东 1945/1963/1968/1978 节点</p>
+    <div class="session-box">
+      <strong>Session ID</strong>
+      <code>3172517555486793:6f14652a2974d79797011b99e83037e4_6a353ba468855b8a7e95470e.6a360db92f11a1e942b41401.6a360db90afa9c681d3e147c</code>
+    </div>
+
+    <h3>步骤 3：星之所向抽卡页面（2026/6/20）</h3>
+    <p>提出"另开一个抽卡界面，艺术命名、与星星相关"的需求。TRAE 命名为"星之所向"，新建独立 <code>draw.html</code>，设计底部椭圆玻璃质感按钮、5 层显眼群山剪影、上方星空。点击抽卡后实现：圆形光芒先旋转几圈再爆发 → 白色星星带尾光斜向坠落 → 跳转首页打开对应科学家详情。通过 URL 参数 <code>?draw=key</code> 跨页面传参，并自动隐藏 loader 直接进入详情流程。</p>
+    <img class="screenshot" src="post_screenshots/screen_7_draw.png" alt="星之所向抽卡页面">
+    <p class="screenshot-caption">▲ 星之所向抽卡页面：金色标题 + 5 层群山 + 椭圆玻璃按钮</p>
+    <div class="session-box">
+      <strong>Session ID</strong>
+      <code>3172517555486793:4a8a93d607c76490b2f7f7571ec7c800_6a353ba468855b8a7e95470e.6a36205d2f11a1e942b415a9.6a36205d922d7beaf131dfd1</code>
+    </div>
+
+    <h3>步骤 4：流星 cinematic 镜头放大序列（2026/7/5）</h3>
+    <p>这是开发中最复杂的部分。需求是"流星滑落时镜头不断放大流星，背景渐变为纯黑，模拟长焦变焦，最后流星占满画面 → 全白 → 全黑 → 出现人物"。TRAE 经过 4 轮迭代调试：</p>
+    <ul>
+      <li>第 1 版：CSS transition 一次性 scale，镜头没跟上主体</li>
+      <li>第 2 版：流星 fixed 在屏幕中心，但缺乏坠落动态感</li>
+      <li>第 3 版：流星沿斜向轨迹坠落，镜头 transform-origin 实时跟随</li>
+      <li>第 4 版（最终）：流星世界坐标移动 + 镜头 translate 公式 <code>cx - meteorX*zoom</code> 让主体始终在视觉中心 + 背景 canvas 星点辐射位移（每颗星点按 depth 沿相对中心方向飞散）+ 全白/全黑遮罩层</li>
+    </ul>
+    <img class="screenshot" src="post_screenshots/screen_1_cinematic_dev.png" alt="TRAE 调试 cinematic 镜头放大代码">
+    <p class="screenshot-caption">▲ TRAE 调试 cinematic 镜头放大：流星世界坐标、镜头跟随、背景辐射后退</p>
+    <p>最终效果：</p>
+    <img class="screenshot" src="post_screenshots/screen_8_cinematic.png" alt="抽卡 cinematic 镜头放大进行中">
+    <p class="screenshot-caption">▲ 抽卡 cinematic 镜头放大进行中：星星带尾光，背景星点辐射后退</p>
+    <div class="session-box">
+      <strong>Session ID</strong>
+      <code>3172517555486793:816ea4e7d9cb3d1e7c95df7443247e81_6a353ba468855b8a7e95470e.6a4a3a9d0344c177d76d553e.6a4a3a9c2e09f310efa5d7a0</code>
+    </div>
+
+    <h3>步骤 5：人物图片智能处理与接入（2026/7/5）</h3>
+    <p>用户提供 16 张中文命名的科学家图片（含水印、尺寸不一、头部位置歪斜）。TRAE 用 Python + Pillow + numpy 自动化处理：</p>
+    <ul>
+      <li>检测每张图人物头部位置（基于亮度方差）</li>
+      <li>以头部为视觉中心智能裁剪为 600×800 竖版 3:4 肖像</li>
+      <li>去掉底部 8% 规避水印</li>
+      <li>批量替换 17 位科学家详情页的 avatar-core、顶部 banner、简介照片栏（detail-figure）三处图片</li>
+      <li>3 位无图科学家（哥白尼、达尔文、钱三强）改为纯黑 banner + 单字 fallback</li>
+    </ul>
+    <img class="screenshot" src="post_screenshots/screen_2_images.png" alt="图片接入状态表">
+    <p class="screenshot-caption">▲ 图片接入状态表 + 南仁东详情页效果</p>
+    <div class="session-box">
+      <strong>Session ID</strong>
+      <code>3172517555486793:266c29f10abe30aa3f2cb598217af90d_6a353ba468855b8a7e95470e.6a4a30b00344c177d76d54d9.6a4a30b0e54cee79812ee139</code>
+    </div>
+
+    <h3>步骤 6：细节打磨与 Bug 修复</h3>
+    <p>开发过程中 TRAE 协助修复多个关键 bug：</p>
+    <ul>
+      <li>首页随机流星 cinematic 误触发导致"一进去就跳转好几个人物"——通过 <code>consumed</code> 标记防止重复消费</li>
+      <li>抽卡跳转后误显示加载页——URL 参数识别后立即隐藏 loader</li>
+      <li>星辰点击互动范围太小——扩大检测半径至 <code>Math.max(48, radius×10)</code></li>
+      <li>图片栏插入位置错误导致 DOM 结构塌陷——正则修复 16 个面板的标签嵌套</li>
+    </ul>
+    <p>调试中实时可见：伽利略详情页顶部 banner 渐变遮罩 + 圆形头像 + 简介文字三处配图全部正确呈现。</p>
+    <div class="session-box">
+      <strong>Session ID</strong>
+      <code>（本步骤与步骤 4、5 同期完成，复用上述 Session）</code>
+    </div>
+
+    <h3>关键技术清单</h3>
+    <div class="tech-grid">
+      <div>Canvas 2D 发光星点/光晕/粒子</div>
+      <div>requestAnimationFrame 动画循环</div>
+      <div>长焦变焦镜头跟随公式</div>
+      <div>全屏 fixed 覆盖层 z-index 管理</div>
+      <div>DOM 动态创建 + CSS 动画</div>
+      <div>clip-path 多边形群山剪影</div>
+      <div>backdrop-filter 玻璃质感</div>
+      <div>URL 参数跨页面传参</div>
+      <div>Python Pillow + numpy 图像处理</div>
+    </div>
+  </section>
+
+  <!-- 五、开发心得 -->
+  <section>
+    <h2>五、开发心得</h2>
+    <p><strong>TRAE 让"想法→成品"的链路前所未有的短</strong>。本作品从星空视觉、科学家数据、抽卡交互到镜头放大序列，全部通过自然语言对话完成，TRAE 能准确理解"长焦变焦""背景辐射后退""三段式启动流程"这类带有视觉/交互专业术语的需求，并直接产出可运行代码。</p>
+    <p><strong>最有价值的瞬间</strong>是调试流星镜头放大时，TRAE 能基于我的反馈（"镜头没跟上主体""主体要往下坠落""背景要相对向后位移"）逐版迭代，最终用 <code>translate(cx - meteorX*zoom, cy - meteorY*zoom) scale(zoom)</code> 这个公式让流星世界坐标移动的同时始终映射到屏幕中心，背景星点按 depth 辐射位移——这种"用对话精修视觉细节"的体验是传统开发方式难以企及的。</p>
+    <p><strong>单文件交付</strong>也是 TRAE 的优势之一，整个作品主文件就一个 <code>index.html</code>（约 3700 行），无需构建工具、无依赖安装，解压即用，非常适合作为大赛 Demo 传播。</p>
+  </section>
+
+  <footer>
+    人类群星闪耀时 · TRAE AI 创意大赛作品帖 · 致敬文明夜空中的科学巨匠
+  </footer>
+
+</div>
+
+<a href="#" class="back-top" title="回到顶部">↑</a>
+
+</body>
+</html>

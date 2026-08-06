@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>寻星 · 论文拯救计划</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg-deep: #000000;
+  --neon-cyan: #ffd479;
+  --text-primary: #f5ecd9;
+  --text-secondary: #b8a888;
+  --text-muted: #6b5d44;
+  --border-faint: rgba(184, 134, 47, 0.18);
+  --border-glow: rgba(255, 212, 121, 0.35);
+  --font-display: 'Cinzel', 'Times New Roman', serif;
+  --font-serif: 'Noto Serif SC', 'PingFang SC', 'Microsoft YaHei', 'SimSun', serif;
+  --font-sans: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: url('images/地球.jpg') no-repeat center center / cover;
+  pointer-events: none;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+.ambient-glow {
+  position: fixed;
+  top: -20vh; left: 50%;
+  transform: translateX(-50%);
+  width: 120vw; height: 60vh;
+  background: radial-gradient(ellipse at center, rgba(255, 212, 121, 0.08) 0%, rgba(184, 134, 47, 0.04) 30%, transparent 70%);
+  z-index: 0;
+  pointer-events: none;
+  animation: ambientBreath 8s ease-in-out infinite;
+}
+@keyframes ambientBreath {
+  0%, 100% { opacity: 0.6; transform: translateX(-50%) scale(1); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
+}
+.page {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 120px 24px 64px;
+}
+.back-link {
+  position: fixed;
+  top: 24px; left: 32px;
+  z-index: 10;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  letter-spacing: 2px;
+  transition: color 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.back-link:hover { color: var(--neon-cyan); }
+.back-link svg { width: 16px; height: 16px; }
+.page-title {
+  font-family: var(--font-display);
+  font-size: 42px;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: 8px;
+  margin-bottom: 8px;
+  text-shadow: 0 0 40px rgba(255, 212, 121, 0.3);
+  text-align: center;
+}
+.page-subtitle {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--text-muted);
+  letter-spacing: 4px;
+  margin-bottom: 48px;
+  text-align: center;
+}
+.games-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+}
+.game-card {
+  padding: 28px;
+  background: rgba(8, 6, 2, 0.72);
+  border: 1px solid var(--border-faint);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+.game-title {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+}
+.game-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+.game-score {
+  font-size: 12px;
+  color: var(--neon-cyan);
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+/* DNA 配对游戏 */
+.dna-strand {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.dna-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.dna-base {
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+}
+.dna-base.fixed { background: rgba(255, 212, 121, 0.12); border-color: rgba(255, 212, 121, 0.3); }
+.dna-base.slot {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dna-base.slot:hover { background: rgba(255, 255, 255, 0.1); }
+.dna-base.slot.filled { background: rgba(107, 255, 184, 0.12); border-color: rgba(107, 255, 184, 0.3); }
+.dna-base.slot.wrong { background: rgba(231, 76, 60, 0.15); border-color: rgba(231, 76, 60, 0.4); animation: shake 0.3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-4px)} 75%{transform:translateX(4px)} }
+.dna-pool {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.dna-pool .dna-base {
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+.dna-pool .dna-base:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.1); }
+.dna-pool .dna-base.selected {
+  background: rgba(255, 212, 121, 0.2);
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 16px rgba(255, 212, 121, 0.2);
+}
+
+/* 配对游戏 */
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.match-card {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.25s;
+  user-select: none;
+}
+.match-card:hover { background: rgba(255, 255, 255, 0.08); }
+.match-card.flipped, .match-card.matched {
+  background: rgba(255, 212, 121, 0.12);
+  border-color: rgba(255, 212, 121, 0.3);
+  color: var(--text-primary);
+}
+.match-card.matched {
+  background: rgba(46, 204, 113, 0.12);
+  border-color: rgba(46, 204, 113, 0.3);
+  cursor: default;
+}
+
+/* 时间线排序 */
+.timeline-sort-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  min-height: 220px;
+}
+.timeline-sort-item {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.timeline-sort-item:hover { background: rgba(255, 255, 255, 0.08); }
+.timeline-sort-item.dragging { opacity: 0.5; }
+.timeline-sort-item .ts-handle {
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: grab;
+}
+.timeline-sort-item .ts-text { flex: 1; }
+.timeline-sort-item.correct { background: rgba(46, 204, 113, 0.1); border-color: rgba(46, 204, 113, 0.3); }
+.timeline-sort-item.wrong { background: rgba(231, 76, 60, 0.1); border-color: rgba(231, 76, 60, 0.3); }
+
+.game-btn {
+  padding: 10px 20px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 12px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.game-btn:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+.game-btn.primary {
+  background: var(--neon-cyan);
+  color: #000;
+  border-color: transparent;
+}
+.game-btn.primary:hover { background: #ffe8b3; color: #000; }
+.game-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.result-mini {
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--neon-cyan);
+  text-align: center;
+  min-height: 20px;
+}
+@media (max-width: 768px) {
+  .page { padding-top: 96px; }
+  .page-title { font-size: 30px; letter-spacing: 4px; }
+  .games-grid { grid-template-columns: 1fr; }
+  .match-grid { grid-template-columns: repeat(3, 1fr); }
+}
+</style>
+</head>
+<body>
+<div class="ambient-glow"></div>
+
+<a class="back-link" href="index.html">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+  返回星图
+</a>
+
+<div class="page">
+  <div class="page-title">PAPER RESCUE</div>
+  <div class="page-subtitle">论文拯救计划 · 用游戏重温科学史上的关键瞬间</div>
+
+  <div class="games-grid">
+    <!-- 游戏 1：DNA 碱基配对 -->
+    <div class="game-card">
+      <div class="game-title">01 / 双螺旋配对</div>
+      <div class="game-desc">根据碱基互补配对原则（A-T、G-C），补全 DNA 的另一条链。</div>
+      <div class="game-score" id="dnaScore">得分：0 / 6</div>
+      <div class="dna-strand" id="dnaStrand"></div>
+      <div class="dna-pool" id="dnaPool"></div>
+      <div class="result-mini" id="dnaResult"></div>
+      <div class="game-actions">
+        <button class="game-btn" onclick="initDnaGame()">重新开始</button>
+      </div>
+    </div>
+
+    <!-- 游戏 2：发现与科学家配对 -->
+    <div class="game-card">
+      <div class="game-title">02 / 发现与科学家</div>
+      <div class="game-desc">翻开卡片，找出“科学家/发现/理论”之间的正确配对。</div>
+      <div class="game-score" id="matchScore">得分：0 / 6 对</div>
+      <div class="match-grid" id="matchGrid"></div>
+      <div class="result-mini" id="matchResult"></div>
+      <div class="game-actions">
+        <button class="game-btn" onclick="initMatchGame()">重新开始</button>
+      </div>
+    </div>
+
+    <!-- 游戏 3：论文时间线排序 -->
+    <div class="game-card">
+      <div class="game-title">03 / 论文时间线</div>
+      <div class="game-desc">拖动这些里程碑式论文，按发表年份从早到晚排序。</div>
+      <div class="game-score" id="timelineScore">得分：0 / 6</div>
+      <div class="timeline-sort-list" id="timelineList"></div>
+      <div class="game-actions">
+        <button class="game-btn primary" onclick="checkTimeline()">提交排序</button>
+        <button class="game-btn" onclick="initTimelineGame()">重置</button>
+      </div>
+      <div class="result-mini" id="timelineResult"></div>
+    </div>
+  </div>
+</div>
+
+<script src="scientists_all.js"></script>
+<script>
+var scientistsData = (typeof allScientistsData !== 'undefined' && Array.isArray(allScientistsData)) ? allScientistsData : [];
+
+// ============ 游戏 1：DNA 碱基配对 ============
+var dnaSelectedBase = null;
+var dnaFilled = 0;
+
+function initDnaGame() {
+  dnaSelectedBase = null;
+  dnaFilled = 0;
+  document.getElementById('dnaScore').textContent = '得分：0 / 6';
+  document.getElementById('dnaResult').textContent = '';
+
+  var topBases = ['A', 'T', 'G', 'C', 'A', 'G'];
+  var strandEl = document.getElementById('dnaStrand');
+  var poolEl = document.getElementById('dnaPool');
+  strandEl.innerHTML = '';
+  poolEl.innerHTML = '';
+
+  topBases.forEach(function(base, idx) {
+    var row = document.createElement('div');
+    row.className = 'dna-row';
+    row.innerHTML =
+      '<div class="dna-base fixed">' + base + '</div>' +
+      '<div class="dna-base slot" data-idx="' + idx + '" data-expected="' + pairBase(base) + '" onclick="handleDnaSlot(this)"></div>';
+    strandEl.appendChild(row);
+  });
+
+  var poolBases = ['T', 'A', 'C', 'G', 'T', 'C'].sort(function() { return Math.random() - 0.5; });
+  poolBases.forEach(function(base) {
+    var el = document.createElement('div');
+    el.className = 'dna-base';
+    el.textContent = base;
+    el.onclick = function() { selectPoolBase(this); };
+    poolEl.appendChild(el);
+  });
+}
+
+function pairBase(base) {
+  return { A: 'T', T: 'A', G: 'C', C: 'G' }[base];
+}
+
+function selectPoolBase(el) {
+  var pool = document.getElementById('dnaPool');
+  Array.from(pool.children).forEach(function(c) { c.classList.remove('selected'); });
+  el.classList.add('selected');
+  dnaSelectedBase = el.textContent;
+}
+
+function handleDnaSlot(el) {
+  if (!dnaSelectedBase || el.classList.contains('filled')) return;
+  var expected = el.dataset.expected;
+  if (dnaSelectedBase === expected) {
+    el.textContent = dnaSelectedBase;
+    el.classList.add('filled');
+    dnaFilled++;
+    document.getElementById('dnaScore').textContent = '得分：' + dnaFilled + ' / 6';
+    if (dnaFilled === 6) {
+      document.getElementById('dnaResult').textContent = '完美！你修复了 DNA 双螺旋，解锁了沃森与克里克的发现。';
+    }
+  } else {
+    el.classList.add('wrong');
+    setTimeout(function() { el.classList.remove('wrong'); }, 400);
+  }
+}
+
+// ============ 游戏 2：发现与科学家配对 ============
+var matchCards = [];
+var matchFlipped = [];
+var matchLocked = false;
+var matchPairsFound = 0;
+
+function initMatchGame() {
+  matchCards = [];
+  matchFlipped = [];
+  matchLocked = false;
+  matchPairsFound = 0;
+  document.getElementById('matchScore').textContent = '得分：0 / 6 对';
+  document.getElementById('matchResult').textContent = '';
+
+  var pairs = [
+    { id: 'einstein', name: '爱因斯坦', desc: '狭义相对论' },
+    { id: 'curie', name: '居里夫人', desc: '放射性研究' },
+    { id: 'watson', name: '沃森', desc: 'DNA 双螺旋' },
+    { id: 'turing', name: '图灵', desc: '图灵机' },
+    { id: 'planck', name: '普朗克', desc: '能量量子化' },
+    { id: 'darwin', name: '达尔文', desc: '自然选择学说' }
+  ];
+
+  var gridItems = [];
+  pairs.forEach(function(p) {
+    gridItems.push({ type: 'name', id: p.id, text: p.name });
+    gridItems.push({ type: 'desc', id: p.id, text: p.desc });
+  });
+  gridItems.sort(function() { return Math.random() - 0.5; });
+
+  var grid = document.getElementById('matchGrid');
+  grid.innerHTML = '';
+  gridItems.forEach(function(item, idx) {
+    var el = document.createElement('div');
+    el.className = 'match-card';
+    el.dataset.id = item.id;
+    el.dataset.type = item.type;
+    el.dataset.idx = idx;
+    el.textContent = '?';
+    el.onclick = function() { flipMatchCard(this); };
+    grid.appendChild(el);
+    matchCards.push({ el: el, item: item });
+  });
+}
+
+function flipMatchCard(el) {
+  if (matchLocked || el.classList.contains('matched') || el.classList.contains('flipped')) return;
+
+  var item = matchCards[el.dataset.idx].item;
+  el.textContent = item.text;
+  el.classList.add('flipped');
+  matchFlipped.push({ el: el, item: item });
+
+  if (matchFlipped.length === 2) {
+    matchLocked = true;
+    var a = matchFlipped[0], b = matchFlipped[1];
+    if (a.item.id === b.item.id && a.item.type !== b.item.type) {
+      setTimeout(function() {
+        a.el.classList.add('matched');
+        b.el.classList.add('matched');
+        matchPairsFound++;
+        document.getElementById('matchScore').textContent = '得分：' + matchPairsFound + ' / 6 对';
+        matchFlipped = [];
+        matchLocked = false;
+        if (matchPairsFound === 6) {
+          document.getElementById('matchResult').textContent = '全部配对成功！你对科学史了如指掌。';
+        }
+      }, 400);
+    } else {
+      setTimeout(function() {
+        a.el.classList.remove('flipped');
+        b.el.classList.remove('flipped');
+        a.el.textContent = '?';
+        b.el.textContent = '?';
+        matchFlipped = [];
+        matchLocked = false;
+      }, 900);
+    }
+  }
+}
+
+// ============ 游戏 3：论文时间线排序 ============
+var timelineItems = [];
+var timelineCorrectOrder = [];
+
+function initTimelineGame() {
+  document.getElementById('timelineScore').textContent = '得分：0 / 6';
+  document.getElementById('timelineResult').textContent = '';
+
+  var events = [
+    { year: 1543, text: '哥白尼《天体运行论》发表，日心说问世' },
+    { year: 1687, text: '牛顿《自然哲学的数学原理》出版' },
+    { year: 1859, text: '达尔文《物种起源》出版' },
+    { year: 1905, text: '爱因斯坦发表狭义相对论论文' },
+    { year: 1953, text: '沃森与克里克发表 DNA 双螺旋结构论文' },
+    { year: 2012, text: '希格斯玻色子在 CERN 被发现' }
+  ];
+
+  timelineCorrectOrder = events.map(function(e) { return e.year; });
+  timelineItems = events.slice().sort(function() { return Math.random() - 0.5; });
+
+  renderTimelineList();
+}
+
+function renderTimelineList() {
+  var list = document.getElementById('timelineList');
+  list.innerHTML = '';
+  timelineItems.forEach(function(item, idx) {
+    var el = document.createElement('div');
+    el.className = 'timeline-sort-item';
+    el.draggable = true;
+    el.dataset.idx = idx;
+    el.innerHTML = '<span class="ts-handle">≡</span><span class="ts-text">' + escapeHtml(item.text) + '</span>';
+    el.addEventListener('dragstart', handleDragStart);
+    el.addEventListener('dragover', handleDragOver);
+    el.addEventListener('drop', handleDrop);
+    el.addEventListener('dragend', handleDragEnd);
+    list.appendChild(el);
+  });
+}
+
+var dragSrcEl = null;
+function handleDragStart(e) {
+  dragSrcEl = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  return false;
+}
+function handleDrop(e) {
+  e.stopPropagation();
+  if (dragSrcEl !== this) {
+    var srcIdx = parseInt(dragSrcEl.dataset.idx);
+    var dstIdx = parseInt(this.dataset.idx);
+    var moved = timelineItems[srcIdx];
+    timelineItems.splice(srcIdx, 1);
+    timelineItems.splice(dstIdx, 0, moved);
+    renderTimelineList();
+  }
+  return false;
+}
+function handleDragEnd() {
+  this.classList.remove('dragging');
+}
+
+function checkTimeline() {
+  var items = document.querySelectorAll('.timeline-sort-item');
+  var correct = 0;
+  timelineItems.forEach(function(item, idx) {
+    var el = items[idx];
+    el.classList.remove('correct', 'wrong');
+    if (item.year === timelineCorrectOrder[idx]) {
+      correct++;
+      el.classList.add('correct');
+    } else {
+      el.classList.add('wrong');
+    }
+  });
+  document.getElementById('timelineScore').textContent = '得分：' + correct + ' / 6';
+  if (correct === 6) {
+    document.getElementById('timelineResult').textContent = '时间线完全正确！从哥白尼到希格斯，科学史在你手中串联。';
+  } else {
+    document.getElementById('timelineResult').textContent = '有 ' + (6 - correct) + ' 处顺序不对，继续调整吧。';
+  }
+}
+
+function escapeHtml(text) {
+  if (text == null) return '';
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// 初始化
+initDnaGame();
+initMatchGame();
+initTimelineGame();
+</script>
+</body>
+</html>

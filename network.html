@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>薪火相传 · 人类群星闪耀时</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --neon-cyan: #ffd479;
+  --text-primary: #f5ecd9;
+  --text-secondary: #b8a888;
+  --text-muted: #6b5d44;
+  --border-faint: rgba(184,134,47,0.18);
+  --font-display: 'Cinzel','Times New Roman',serif;
+  --font-serif: 'Noto Serif SC','PingFang SC','Microsoft YaHei','SimSun',serif;
+  --font-sans: 'Noto Sans SC','PingFang SC','Microsoft YaHei','Hiragino Sans GB',sans-serif;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body {
+  width:100%; height:100%;
+  background:#020408;
+  overflow:hidden;
+  font-family:var(--font-sans);
+  color:var(--text-primary);
+  -webkit-font-smoothing:antialiased;
+  touch-action:none;
+}
+
+canvas#graphCanvas {
+  position:fixed;
+  inset:0;
+  z-index:0;
+  cursor:grab;
+}
+canvas#graphCanvas:active { cursor:grabbing; }
+canvas#graphCanvas.dragging-node { cursor:grabbing; }
+
+/* 顶部栏 */
+.top-bar {
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:10;
+  padding:14px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  background:rgba(5,8,22,0.65);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border-faint);
+}
+.back-link {
+  color:var(--text-muted);
+  text-decoration:none;
+  font-size:13px;
+  letter-spacing:1.5px;
+  white-space:nowrap;
+}
+.back-link:hover { color:var(--neon-cyan); }
+.top-title {
+  font-family:var(--font-display);
+  font-size:15px;
+  letter-spacing:4px;
+  color:var(--text-secondary);
+  margin-right:auto;
+}
+.search-wrap {
+  position:relative;
+}
+.search-input {
+  width:180px;
+  padding:7px 14px 7px 32px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--border-faint);
+  border-radius:20px;
+  color:var(--text-primary);
+  font-family:var(--font-sans);
+  font-size:12px;
+  outline:none;
+  transition:border-color 0.3s;
+}
+.search-input:focus { border-color:var(--neon-cyan); width:220px; }
+.search-input::placeholder { color:var(--text-muted); }
+.search-icon {
+  position:absolute;
+  left:10px; top:50%;
+  transform:translateY(-50%);
+  color:var(--text-muted);
+  font-size:13px;
+  pointer-events:none;
+}
+
+/* 图例 */
+.legend {
+  position:fixed;
+  bottom:20px; right:20px;
+  z-index:10;
+  background:rgba(8,6,2,0.75);
+  border:1px solid var(--border-faint);
+  border-radius:14px;
+  padding:12px 16px;
+  backdrop-filter:blur(8px);
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.legend-item {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  color:var(--text-secondary);
+  letter-spacing:0.5px;
+}
+.legend-line {
+  width:18px; height:2px;
+  border-radius:1px;
+  flex-shrink:0;
+}
+.legend-line.mentor  { background:#e74c3c; }
+.legend-line.student { background:#2ecc71; }
+.legend-line.collaborator { background:#ffd479; }
+.legend-line.peer   { background:#3498db; }
+.legend-line.influence { background:#9b59b6; }
+
+/* 迷你名片 */
+.node-card {
+  position:fixed;
+  z-index:20;
+  background:rgba(10,7,3,0.92);
+  border:1px solid var(--neon-cyan);
+  border-radius:14px;
+  padding:16px 20px;
+  min-width:180px;
+  text-align:center;
+  pointer-events:auto;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  opacity:0;
+  transform:translate(-50%, -110%);
+  transition:opacity 0.2s ease;
+}
+.node-card.visible { opacity:1; }
+.node-card img {
+  width:56px; height:56px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid rgba(255,212,121,0.3);
+  margin-bottom:8px;
+}
+.node-card .nc-name {
+  font-family:var(--font-serif);
+  font-size:16px;
+  font-weight:600;
+  letter-spacing:2px;
+  margin-bottom:4px;
+}
+.node-card .nc-title {
+  font-size:11px;
+  color:var(--neon-cyan);
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+.node-card .nc-conn {
+  font-size:10px;
+  color:var(--text-muted);
+  margin-bottom:10px;
+}
+.node-card .nc-btn {
+  display:inline-block;
+  padding:6px 16px;
+  background:linear-gradient(135deg,rgba(255,212,121,0.2),rgba(255,212,121,0.08));
+  border:1px solid var(--neon-cyan);
+  border-radius:16px;
+  color:var(--neon-cyan);
+  font-size:11px;
+  text-decoration:none;
+  letter-spacing:1px;
+  transition:all 0.25s;
+}
+.node-card .nc-btn:hover {
+  background:rgba(255,212,121,0.3);
+  box-shadow:0 0 16px rgba(255,212,121,0.2);
+}
+
+/* 缩放提示 */
+.zoom-hint {
+  position:fixed;
+  bottom:20px; left:20px;
+  z-index:10;
+  font-size:11px;
+  color:var(--text-muted);
+  letter-spacing:1px;
+}
+</style>
+</head>
+<body>
+
+<canvas id="graphCanvas"></canvas>
+
+<div class="top-bar">
+  <a class="back-link" href="index.html" onclick="sessionStorage.setItem('sm_return','1')">← 返回星图</a>
+  <span class="top-title">ACADEMIC LINEAGE</span>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" type="text" id="searchInput" placeholder="搜索科学家…" autocomplete="off" />
+  </div>
+</div>
+
+<div class="legend" id="legend">
+  <div class="legend-item"><span class="legend-line mentor"></span> 导师 / 先驱</div>
+  <div class="legend-item"><span class="legend-line student"></span> 学生 / 后继</div>
+  <div class="legend-item"><span class="legend-line collaborator"></span> 合作者</div>
+  <div class="legend-item"><span class="legend-line peer"></span> 同代同行</div>
+  <div class="legend-item"><span class="legend-line influence"></span> 学术影响</div>
+</div>
+
+<div class="zoom-hint">🖱 滚轮缩放 · 拖拽空白平移 · 拖拽节点移动</div>
+
+<div class="node-card" id="nodeCard">
+  <img id="ncImg" src="" alt="" onerror="this.style.display='none'" />
+  <div class="nc-name" id="ncName"></div>
+  <div class="nc-title" id="ncTitle"></div>
+  <div class="nc-conn" id="ncConn"></div>
+  <a class="nc-btn" id="ncLink" href="#" onclick="sessionStorage.setItem('sm_return','1');sessionStorage.setItem('sm_skip_detail_transition','1')">探索人生 →</a>
+</div>
+
+<script src="scientists_all.js"></script>
+<script src="scientists_relations.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  var data = (typeof allScientistsData !== 'undefined' && Array.isArray(allScientistsData)) ? allScientistsData : [];
+  var relations = (typeof __scientistsRelations !== 'undefined') ? __scientistsRelations : {};
+
+  // ========== 数据准备 ==========
+
+  // 建 name → index 映射
+  var keyMap = {};
+  var sciByKey = {};
+  data.forEach(function (s, i) {
+    keyMap[s.key] = i;
+    sciByKey[s.key] = s;
+  });
+
+  // 分类颜色
+  var CAT_COLORS = {
+    '物理学': '#ff6b6b', '天文学': '#ffd93d', '数学': '#6bcb77',
+    '生命科学': '#4d96ff', '化学': '#ff922b', '计算机科学': '#20c997',
+    '工程学': '#845ef7', '地球科学': '#339af0', '其他': '#adb5bd'
+  };
+
+  // 构建节点列表（只包含有关系或存在于 data 中的科学家）
+  var nodes = [];
+  var nodeKeys = [];
+  data.forEach(function (s) {
+    var hasRels = relations[s.key] && relations[s.key].length > 0;
+    nodes.push({
+      key: s.key,
+      name: s.name,
+      title: s.title || '科学巨匠',
+      category: s.category || '其他',
+      x: 0, y: 0, vx: 0, vy: 0,
+      fixed: false,
+      mass: hasRels ? 2 : 0.5
+    });
+    nodeKeys.push(s.key);
+  });
+
+  // 构建连线列表
+  var links = [];
+  var linkSet = {};
+  nodeKeys.forEach(function (k) {
+    var rels = relations[k];
+    if (!rels) return;
+    rels.forEach(function (r) {
+      var pair = k < r.to ? k + '|' + r.to : r.to + '|' + k;
+      if (linkSet[pair]) return;
+      linkSet[pair] = true;
+      var srcIdx = nodeKeys.indexOf(k);
+      var tgtIdx = nodeKeys.indexOf(r.to);
+      if (srcIdx === -1 || tgtIdx === -1) return;
+      links.push({
+        source: srcIdx,
+        target: tgtIdx,
+        type: r.type,
+        desc: r.desc || ''
+      });
+    });
+  });
+
+  // ========== Canvas 初始化 ==========
+
+  var canvas = document.getElementById('graphCanvas');
+  var ctx = canvas.getContext('2d');
+
+  var W, H;
+  var camera = { x: 0, y: 0, zoom: 1 };
+  var targetCamera = { x: 0, y: 0, zoom: 1 };
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ========== 力导向布局 ==========
+
+  var centerX, centerY;
+  function updateCenter() { centerX = W / 2; centerY = H / 2; }
+  updateCenter();
+
+  // 初始化位置：环形分布
+  nodes.forEach(function (n, i) {
+    var angle = (i / nodes.length) * Math.PI * 2;
+    var radius = Math.min(W, H) * 0.3;
+    n.x = centerX + Math.cos(angle) * radius + (Math.random() - 0.5) * 100;
+    n.y = centerY + Math.sin(angle) * radius + (Math.random() - 0.5) * 100;
+  });
+
+  var simAlpha = 1;
+  var SIM_MAX = 300;
+  var simTick = 0;
+
+  function tickForce() {
+    if (simTick >= SIM_MAX) { simAlpha = 0; return; }
+    simAlpha = 1 - simTick / SIM_MAX;
+    simTick++;
+
+    var i, j, n, m, dx, dy, dist, force;
+
+    // Repulsion (Barnes-Hut simplified: all-pairs O(n²))
+    var k2 = 8000;
+    for (i = 0; i < nodes.length; i++) {
+      n = nodes[i];
+      if (n.fixed) continue;
+      for (j = i + 1; j < nodes.length; j++) {
+        m = nodes[j];
+        dx = n.x - m.x;
+        dy = n.y - m.y;
+        dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        force = k2 / (dist * dist);
+        var fx = (dx / dist) * force * simAlpha;
+        var fy = (dy / dist) * force * simAlpha;
+        n.vx += fx;
+        n.vy += fy;
+        if (!m.fixed) { m.vx -= fx; m.vy -= fy; }
+      }
+    }
+
+    // Attraction along edges
+    for (i = 0; i < links.length; i++) {
+      var l = links[i];
+      var s = nodes[l.source];
+      var t = nodes[l.target];
+      dx = t.x - s.x;
+      dy = t.y - s.y;
+      dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      force = (dist - 120) * 0.005;
+      var fx2 = (dx / dist) * force * simAlpha;
+      var fy2 = (dy / dist) * force * simAlpha;
+      if (!s.fixed) { s.vx += fx2; s.vy += fy2; }
+      if (!t.fixed) { t.vx -= fx2; t.vy -= fy2; }
+    }
+
+    // Center gravity
+    for (i = 0; i < nodes.length; i++) {
+      n = nodes[i];
+      if (n.fixed) continue;
+      dx = centerX - n.x;
+      dy = centerY - n.y;
+      n.vx += dx * 0.001 * simAlpha;
+      n.vy += dy * 0.001 * simAlpha;
+    }
+
+    // Damping + update
+    for (i = 0; i < nodes.length; i++) {
+      n = nodes[i];
+      if (n.fixed) { n.vx = 0; n.vy = 0; continue; }
+      n.vx *= 0.85;
+      n.vy *= 0.85;
+      n.x += n.vx;
+      n.y += n.vy;
+    }
+  }
+
+  // ========== 交互 ==========
+
+  var hoverNode = null;
+  var dragNode = null;
+  var dragStarted = false;
+  var dragStartPos = { x: 0, y: 0 };
+  var dragOrigPos = { x: 0, y: 0 };
+  var DRAG_THRESHOLD = 4;
+  var isPanning = false;
+  var panStart = { x: 0, y: 0 };
+  var mouse = { x: 0, y: 0 };
+  var worldMouse = { x: 0, y: 0 };
+
+  function screenToWorld(sx, sy) {
+    return {
+      x: (sx - camera.x) / camera.zoom,
+      y: (sy - camera.y) / camera.zoom
+    };
+  }
+
+  function findNodeAt(wx, wy) {
+    var threshold = 18 / camera.zoom;
+    for (var i = nodes.length - 1; i >= 0; i--) {
+      var n = nodes[i];
+      var dx = n.x - wx;
+      var dy = n.y - wy;
+      if (Math.sqrt(dx * dx + dy * dy) < threshold) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  canvas.addEventListener('mousedown', function (e) {
+    var wx = screenToWorld(e.clientX, e.clientY);
+    var idx = findNodeAt(wx.x, wx.y);
+    if (idx >= 0) {
+      dragNode = idx;
+      dragStarted = false;
+      dragStartPos.x = e.clientX;
+      dragStartPos.y = e.clientY;
+      dragOrigPos.x = nodes[idx].x;
+      dragOrigPos.y = nodes[idx].y;
+      showNodeCard(idx);
+    } else {
+      isPanning = true;
+      panStart.x = e.clientX - camera.x;
+      panStart.y = e.clientY - camera.y;
+    }
+  });
+
+  document.addEventListener('mousemove', function (e) {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    worldMouse = screenToWorld(e.clientX, e.clientY);
+
+    if (dragNode !== null) {
+      if (!dragStarted) {
+        var dx2 = e.clientX - dragStartPos.x;
+        var dy2 = e.clientY - dragStartPos.y;
+        if (dx2 * dx2 + dy2 * dy2 > DRAG_THRESHOLD * DRAG_THRESHOLD) {
+          dragStarted = true;
+          nodes[dragNode].fixed = true;
+          canvas.classList.add('dragging-node');
+        }
+      }
+      if (dragStarted) {
+        nodes[dragNode].x = worldMouse.x;
+        nodes[dragNode].y = worldMouse.y;
+        updateNodeCardPos();
+      }
+    } else if (isPanning) {
+      camera.x = e.clientX - panStart.x;
+      camera.y = e.clientY - panStart.y;
+    } else {
+      var idx = findNodeAt(worldMouse.x, worldMouse.y);
+      if (idx !== hoverNode) {
+        hoverNode = idx;
+        updateHighlight();
+      }
+    }
+  });
+
+  document.addEventListener('mouseup', function () {
+    if (dragNode !== null && dragStarted) {
+      nodes[dragNode].fixed = false;
+      canvas.classList.remove('dragging-node');
+    }
+    dragNode = null;
+    dragStarted = false;
+    isPanning = false;
+  });
+
+  canvas.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    var delta = e.deltaY > 0 ? 0.9 : 1.1;
+    var newZoom = Math.max(0.15, Math.min(4, camera.zoom * delta));
+    // Zoom toward mouse
+    camera.x = e.clientX - (e.clientX - camera.x) * (newZoom / camera.zoom);
+    camera.y = e.clientY - (e.clientY - camera.y) * (newZoom / camera.zoom);
+    camera.zoom = newZoom;
+    updateNodeCardPos();
+  }, { passive: false });
+
+  // 触摸支持
+  var lastTouchDist = 0;
+  canvas.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 1) {
+      var wx = screenToWorld(e.touches[0].clientX, e.touches[0].clientY);
+      var idx = findNodeAt(wx.x, wx.y);
+      if (idx >= 0) {
+        dragNode = idx;
+        dragStarted = false;
+        dragStartPos.x = e.touches[0].clientX;
+        dragStartPos.y = e.touches[0].clientY;
+        dragOrigPos.x = nodes[idx].x;
+        dragOrigPos.y = nodes[idx].y;
+        showNodeCard(idx);
+      } else {
+        isPanning = true;
+        panStart.x = e.touches[0].clientX - camera.x;
+        panStart.y = e.touches[0].clientY - camera.y;
+      }
+    }
+    if (e.touches.length === 2) {
+      lastTouchDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      isPanning = false;
+      dragNode = null;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', function (e) {
+    e.preventDefault();
+    if (dragNode !== null && e.touches.length === 1) {
+      var wx2 = screenToWorld(e.touches[0].clientX, e.touches[0].clientY);
+      if (!dragStarted) {
+        var dx3 = e.touches[0].clientX - dragStartPos.x;
+        var dy3 = e.touches[0].clientY - dragStartPos.y;
+        if (dx3 * dx3 + dy3 * dy3 > DRAG_THRESHOLD * DRAG_THRESHOLD) {
+          dragStarted = true;
+          nodes[dragNode].fixed = true;
+        }
+      }
+      if (dragStarted) {
+        nodes[dragNode].x = wx2.x;
+        nodes[dragNode].y = wx2.y;
+        updateNodeCardPos();
+      }
+    } else if (isPanning && e.touches.length === 1) {
+      camera.x = e.touches[0].clientX - panStart.x;
+      camera.y = e.touches[0].clientY - panStart.y;
+    } else if (e.touches.length === 2) {
+      var d = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (lastTouchDist) {
+        var scale = d / lastTouchDist;
+        var cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+        var cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+        var nz = Math.max(0.15, Math.min(4, camera.zoom * scale));
+        camera.x = cx - (cx - camera.x) * (nz / camera.zoom);
+        camera.y = cy - (cy - camera.y) * (nz / camera.zoom);
+        camera.zoom = nz;
+      }
+      lastTouchDist = d;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function () {
+    if (dragNode !== null && dragStarted) {
+      nodes[dragNode].fixed = false;
+    }
+    dragNode = null;
+    dragStarted = false;
+    isPanning = false;
+    lastTouchDist = 0;
+  });
+
+  // ========== 迷你名片 ==========
+
+  var nodeCard = document.getElementById('nodeCard');
+  var ncImg = document.getElementById('ncImg');
+  var ncName = document.getElementById('ncName');
+  var ncTitle = document.getElementById('ncTitle');
+  var ncConn = document.getElementById('ncConn');
+  var ncLink = document.getElementById('ncLink');
+  var activeCardNode = -1;
+
+  function showNodeCard(idx) {
+    var n = nodes[idx];
+    ncImg.src = 'images/' + n.key + '.jpg';
+    ncImg.style.display = '';
+    ncName.textContent = n.name;
+    ncTitle.textContent = n.title;
+    var connCount = (relations[n.key] || []).length;
+    ncConn.textContent = connCount + ' 位关联人物';
+    ncLink.href = 'index.html?p=' + encodeURIComponent(n.key);
+    nodeCard.classList.add('visible');
+    activeCardNode = idx;
+    updateNodeCardPos();
+  }
+
+  function hideNodeCard() {
+    nodeCard.classList.remove('visible');
+    activeCardNode = -1;
+  }
+
+  function updateNodeCardPos() {
+    if (activeCardNode < 0) return;
+    var n = nodes[activeCardNode];
+    var sx = n.x * camera.zoom + camera.x;
+    var sy = n.y * camera.zoom + camera.y;
+    var r = getNodeRadius(n) * camera.zoom;
+    nodeCard.style.left = sx + 'px';
+    nodeCard.style.top = (sy - r - 12) + 'px';
+  }
+
+  document.getElementById('ncLink').addEventListener('click', function () {
+    sessionStorage.setItem('sm_return', '1');
+    sessionStorage.setItem('sm_skip_detail_transition', '1');
+  });
+
+  // 点击画布空白关闭名片
+  canvas.addEventListener('click', function (e) {
+    if (dragNode !== null) return;
+    var wx = screenToWorld(e.clientX, e.clientY);
+    var idx = findNodeAt(wx.x, wx.y);
+    if (idx < 0) {
+      hideNodeCard();
+      updateHighlight();
+    }
+  });
+
+  // ========== 搜索 ==========
+
+  var searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('input', function () {
+    var q = this.value.trim().toLowerCase();
+    if (!q) {
+      hideNodeCard();
+      updateHighlight();
+      return;
+    }
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].name.toLowerCase().includes(q) || nodes[i].key.toLowerCase().includes(q)) {
+        // 居中到该节点
+        camera.x = W / 2 - nodes[i].x * camera.zoom;
+        camera.y = H / 2 - nodes[i].y * camera.zoom;
+        showNodeCard(i);
+        return;
+      }
+    }
+  });
+
+  // ========== 高亮逻辑（多级 BFS） ==========
+
+  // hlAnim: 0→1，涟漪扩散进度；hlLevels[key] = 0(中心)/1(一级)/2(二级)
+  var hlAnim = 0;
+  var hlTarget = 0; // 0 = 无高亮，1 = 高亮中
+  var hlLevels = {};
+
+  function updateHighlight() {
+    hlLevels = {};
+    if (hoverNode >= 0) {
+      var centerKey = nodes[hoverNode].key;
+      hlLevels[centerKey] = 0; // 中心节点
+
+      // BFS: 一级关系
+      var l1Rels = relations[centerKey] || [];
+      l1Rels.forEach(function (r) {
+        if (!(r.to in hlLevels)) hlLevels[r.to] = 1;
+      });
+
+      // BFS: 二级关系（一级节点的邻居，但排除中心）
+      l1Rels.forEach(function (r1) {
+        var l2Rels = relations[r1.to] || [];
+        l2Rels.forEach(function (r2) {
+          if (!(r2.to in hlLevels) && r2.to !== centerKey) {
+            hlLevels[r2.to] = 2;
+          }
+        });
+      });
+
+      hlTarget = 1;
+    } else {
+      hlTarget = 0;
+    }
+  }
+
+  // 涟漪动画：hlAnim 平滑过渡
+  function tickHighlightAnim() {
+    if (hlTarget === 1 && hlAnim < 1) {
+      hlAnim = Math.min(1, hlAnim + 0.04); // ~25 帧 ≈ 420ms
+    } else if (hlTarget === 0 && hlAnim > 0) {
+      hlAnim = Math.max(0, hlAnim - 0.06); // 快速消退
+    }
+  }
+
+  // ========== 渲染 ==========
+
+  var TYPE_LINE_COLORS = {
+    mentor: 'rgba(231,76,60,0.45)',
+    student: 'rgba(46,204,113,0.45)',
+    collaborator: 'rgba(255,212,121,0.45)',
+    peer: 'rgba(52,152,219,0.45)',
+    influence: 'rgba(155,89,182,0.45)'
+  };
+  var TYPE_HL_COLORS_L1 = {
+    mentor: 'rgba(231,76,60,0.85)',
+    student: 'rgba(46,204,113,0.85)',
+    collaborator: 'rgba(255,212,121,0.85)',
+    peer: 'rgba(52,152,219,0.85)',
+    influence: 'rgba(155,89,182,0.85)'
+  };
+  var TYPE_HL_COLORS_L2 = {
+    mentor: 'rgba(231,76,60,0.35)',
+    student: 'rgba(46,204,113,0.35)',
+    collaborator: 'rgba(255,212,121,0.35)',
+    peer: 'rgba(52,152,219,0.35)',
+    influence: 'rgba(155,89,182,0.35)'
+  };
+
+  function getNodeRadius(n) {
+    var relCount = (relations[n.key] || []).length;
+    return 5 + Math.min(relCount * 0.5, 12);
+  }
+
+  // 连接两个节点的 link（用于判断高亮级别）
+  function getLinkHL(l, hasHL) {
+    if (!hasHL) return 0;
+    var sk = nodes[l.source].key;
+    var tk = nodes[l.target].key;
+    var sl = hlLevels[sk];
+    var tl = hlLevels[tk];
+    if (sl === undefined || tl === undefined) return 0;
+    // 两端都在高亮集合中
+    if (sl <= 1 && tl <= 1) return 1; // 至少有一级参与
+    if (sl <= 2 && tl <= 2) return 2; // 二级链路
+    return 0;
+  }
+
+  function render(now) {
+    updateCenter();
+    tickForce();
+    tickHighlightAnim();
+
+    var ripplePhase = (now * 0.001) % 3; // 3 秒一个循环
+
+    ctx.clearRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(camera.x, camera.y);
+    ctx.scale(camera.zoom, camera.zoom);
+
+    var hasHL = Object.keys(hlLevels).length > 0;
+    var anim = hlAnim; // 0 → 1
+
+    // ===== 涟漪波（从中心向外扩散） =====
+     if (hasHL && anim > 0.03) {
+       for (var ci = 0; ci < nodes.length; ci++) {
+         var cn = nodes[ci];
+         var cl = hlLevels[cn.key];
+         if (cl !== 0) continue;
+
+         // 两层涟漪：一级圆环 + 二级圆环，先后扩散
+         var r1_anim = Math.max(0, Math.min(1, anim * 2.5)); // 0 → 1 at ~250ms
+         var r2_anim = Math.max(0, Math.min(1, (anim - 0.2) * 2.5)); // 延迟 ~120ms
+
+         // 一级涟漪（实线，较亮）
+         if (r1_anim > 0) {
+           var rippleR1 = 30 + r1_anim * 180;
+           var r1alpha = (1 - r1_anim) * 0.25 * Math.min(1, anim * 1.5);
+           ctx.beginPath();
+           ctx.arc(cn.x, cn.y, rippleR1, 0, Math.PI * 2);
+           ctx.strokeStyle = 'rgba(255,212,121,' + r1alpha + ')';
+           ctx.lineWidth = 3 * (1 - r1_anim * 0.5) + 0.5;
+           ctx.stroke();
+         }
+
+         // 二级涟漪（虚线，较淡）
+         if (r2_anim > 0 && r2_anim < 1) {
+           var rippleR2 = 50 + r2_anim * 220;
+           var r2alpha = (1 - r2_anim) * 0.14 * Math.min(1, anim * 1.2);
+           ctx.beginPath();
+           ctx.arc(cn.x, cn.y, rippleR2, 0, Math.PI * 2);
+           ctx.setLineDash([8, 10]);
+           ctx.strokeStyle = 'rgba(255,212,121,' + r2alpha + ')';
+           ctx.lineWidth = 2 * (1 - r2_anim * 0.5);
+           ctx.stroke();
+           ctx.setLineDash([]);
+         }
+       }
+     }
+
+    // ===== 连线 =====
+    for (var i = 0; i < links.length; i++) {
+      var l = links[i];
+      var s = nodes[l.source];
+      var t = nodes[l.target];
+      var linkHL = getLinkHL(l, hasHL);
+
+      var linkAlpha, linkColor, linkWidth;
+      if (hasHL) {
+        if (linkHL === 1) {
+          linkAlpha = 0.3 + anim * 0.55;
+          linkColor = TYPE_HL_COLORS_L1[l.type];
+          linkWidth = 1.6;
+        } else if (linkHL === 2) {
+          linkAlpha = anim * 0.35;
+          linkColor = TYPE_HL_COLORS_L2[l.type];
+          linkWidth = 1;
+        } else {
+          linkAlpha = 0.04;
+          linkColor = 'rgba(255,255,255,0.03)';
+          linkWidth = 0.6;
+        }
+      } else {
+        linkAlpha = 0.4;
+        linkColor = TYPE_LINE_COLORS[l.type];
+        linkWidth = 0.7;
+      }
+
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(t.x, t.y);
+      ctx.strokeStyle = linkColor;
+      ctx.globalAlpha = linkAlpha;
+      ctx.lineWidth = linkWidth;
+      ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+
+    // ===== 节点 =====
+    for (i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      var hl = hlLevels[n.key];
+      var isHL = hl !== undefined;
+      var r = getNodeRadius(n);
+      var catColor = CAT_COLORS[n.category] || '#adb5bd';
+
+      // 中心节点脉冲光晕
+      if (hl === 0) {
+        var pulseScale = 1 + Math.sin(ripplePhase * Math.PI * 2) * 0.25;
+        var glowR = (r + 4) * pulseScale;
+        var glowAlpha = 0.12 + Math.sin(ripplePhase * Math.PI * 2) * 0.06;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, glowR, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,212,121,' + glowAlpha + ')';
+        ctx.fill();
+      }
+
+      // 一级节点微光
+      if (hl === 1) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, r + 3, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(255,212,121,' + (0.06 * anim) + ')';
+        ctx.fill();
+      }
+
+      // 节点主体
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+
+      if (hasHL) {
+        if (hl === 0) {
+          ctx.fillStyle = catColor;
+          ctx.strokeStyle = 'rgba(255,212,121,0.8)';
+          ctx.lineWidth = 2.5;
+        } else if (hl === 1) {
+          ctx.fillStyle = catColor;
+          ctx.strokeStyle = 'rgba(255,255,255,' + (0.3 + anim * 0.3) + ')';
+          ctx.lineWidth = 1.2;
+        } else if (hl === 2) {
+          ctx.fillStyle = catColor;
+          ctx.globalAlpha = 0.35 + anim * 0.3;
+          ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+          ctx.lineWidth = 0.8;
+        } else {
+          ctx.fillStyle = 'rgba(255,255,255,0.08)';
+          ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+          ctx.lineWidth = 0.5;
+        }
+      } else {
+        ctx.fillStyle = catColor;
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+        ctx.lineWidth = 1;
+      }
+
+      ctx.fill();
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // 标签
+      var showLabel = hl === 0 || hl === 1 || (!hasHL && camera.zoom > 0.5);
+      if (showLabel) {
+        var labelAlpha;
+        if (hasHL) {
+          if (hl === 0) labelAlpha = 1;
+          else if (hl === 1) labelAlpha = 0.55 + anim * 0.3;
+          else labelAlpha = 0.12;
+        } else {
+          labelAlpha = Math.min(0.85, camera.zoom);
+        }
+        ctx.fillStyle = 'rgba(245,236,217,' + labelAlpha + ')';
+        ctx.font = (hl === 0 ? 'bold ' : '') + '11px "Noto Sans SC","PingFang SC",sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(n.name, n.x, n.y - r - 5);
+      }
+    }
+
+    ctx.restore();
+    requestAnimationFrame(render);
+  }
+
+  requestAnimationFrame(render);
+
+  // 持续微调（非固定节点）
+  var idleTimer = 0;
+  setInterval(function () {
+    if (dragNode !== null && dragStarted || isPanning || simTick < SIM_MAX) return;
+    if (hoverNode >= 0) return; // hover 时不自动冷却
+    idleTimer++;
+    if (idleTimer > 10) { // ~1 second
+      nodes.forEach(function (n) {
+        if (n.fixed) return;
+        n.vx *= 0.5;
+        n.vy *= 0.5;
+      });
+      idleTimer = 0;
+    }
+  }, 100);
+
+})();
+</script>
+</body>
+</html>
