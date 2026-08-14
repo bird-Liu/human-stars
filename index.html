@@ -2087,7 +2087,7 @@
   #chatModal {
     position: fixed;
     inset: 0;
-    z-index: 2000;
+    z-index: 3000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2275,11 +2275,16 @@
     padding: 12px 18px;
     color: var(--text-primary);
     font-family: var(--font-sans);
-    font-size: 14px;
+    /* 16px 防止 iOS/触屏聚焦时自动缩放导致软键盘异常 */
+    font-size: 16px;
     resize: none;
     outline: none;
     max-height: 120px;
     line-height: 1.5;
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-user-select: text;
+    user-select: text;
     transition: border-color 0.3s;
   }
   .chat-modal-input:focus {
@@ -6627,7 +6632,7 @@
     </div>
     <div class="chat-modal-hint" id="chatHint">按 Enter 发送，Shift+Enter 换行</div>
     <div class="chat-modal-input-wrap">
-      <textarea class="chat-modal-input" id="chatInput" placeholder="向这位科学家提问..." rows="1" onkeydown="handleChatKeydown(event)"></textarea>
+      <textarea class="chat-modal-input" id="chatInput" placeholder="向这位科学家提问..." rows="1" inputmode="text" enterkeyhint="send" autocomplete="off" autocapitalize="off" onkeydown="handleChatKeydown(event)" ontouchend="focusChatInput()"></textarea>
       <button class="chat-modal-send" id="chatSendBtn" onclick="sendChatMessage()" aria-label="发送">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
@@ -13157,6 +13162,16 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
   const DS_API_BASE = 'https://api.deepseek.com/v1';
   const DS_API_MODEL = 'deepseek-chat';
 
+  // 触屏点击输入框时主动聚焦，确保软键盘弹出（部分触屏浏览器需在用户手势内聚焦）
+  function focusChatInput() {
+    if (!chatInput) return;
+    try {
+      chatInput.focus({ preventScroll: true });
+    } catch (e) {
+      chatInput.focus();
+    }
+  }
+
   function openChatModal() {
     if (!currentChatScientist) return;
     const data = scientistsData.find(s => s.key === currentChatScientist);
@@ -13177,7 +13192,7 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
 
     chatModal.classList.add('open');
     document.body.style.overflow = 'hidden';
-    setTimeout(() => { chatInput.focus(); }, 400);
+    setTimeout(focusChatInput, 400);
   }
 
   function closeChatModal() {
@@ -13207,7 +13222,7 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
     chatInput.value = '';
     chatInput.style.height = 'auto';
     chatSendBtn.disabled = true;
-    setTimeout(() => { chatInput.focus(); }, 100);
+    setTimeout(focusChatInput, 100);
   }
 
   function handleChatKeydown(e) {
@@ -13311,7 +13326,7 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
     isChatLoading = false;
     chatSendBtn.disabled = false;
     scrollToBottom();
-    setTimeout(() => { chatInput.focus(); }, 100);
+    setTimeout(focusChatInput, 100);
   }
 
   function appendMessage(role, text, isTyping, isFiltered) {
