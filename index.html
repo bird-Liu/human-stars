@@ -2169,6 +2169,27 @@
     box-shadow: 0 0 16px rgba(255, 212, 121, 0.4);
     transform: rotate(90deg);
   }
+  .chat-modal-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .chat-modal-reset {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255, 212, 121, 0.25);
+    background: rgba(8, 6, 2, 0.5);
+    color: #ffd479;
+    border-radius: 50%;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    transition: all 0.3s ease;
+  }
+  .chat-modal-reset:hover {
+    border-color: #ffd479;
+    box-shadow: 0 0 16px rgba(255, 212, 121, 0.4);
+    transform: rotate(-180deg);
+  }
   .chat-modal-messages {
     flex: 1;
     overflow-y: auto;
@@ -6577,11 +6598,19 @@
           <div class="chat-modal-title" id="chatTitle">科学家</div>
         </div>
       </div>
-      <button class="chat-modal-close" onclick="closeChatModal()" aria-label="关闭对话">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 6L6 18M6 6l12 12"/>
-        </svg>
-      </button>
+      <div class="chat-modal-actions">
+        <button class="chat-modal-reset" onclick="resetChat()" aria-label="清空对话" title="清空对话，重新开始">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+          </svg>
+        </button>
+        <button class="chat-modal-close" onclick="closeChatModal()" aria-label="关闭对话">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
     </div>
     <div class="chat-modal-messages" id="chatMessages">
       <div class="chat-message assistant" id="chatWelcome">你好，我是科学家的AI模拟。你可以向我提问，我会以这位科学家的口吻回答你。</div>
@@ -13146,6 +13175,29 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
     if (!detailPanel.classList.contains('open')) {
       document.body.style.overflow = '';
     }
+  }
+
+  function resetChat() {
+    if (isChatLoading) return;
+    const data = scientistsData.find(s => s.key === currentChatScientist);
+
+    // 清空历史与界面
+    chatHistory = [];
+    chatMessages.innerHTML = '';
+
+    // 重新显示欢迎语
+    const welcomeDiv = document.createElement('div');
+    welcomeDiv.className = 'chat-message assistant';
+    welcomeDiv.textContent = data
+      ? '你好，我是' + data.name + '的AI模拟。你可以向我提问，我会以' + data.name + '的口吻回答你。'
+      : '你好，我是科学家的AI模拟。你可以向我提问，我会以这位科学家的口吻回答你。';
+    chatMessages.appendChild(welcomeDiv);
+
+    // 重置输入框
+    chatInput.value = '';
+    chatInput.style.height = 'auto';
+    chatSendBtn.disabled = true;
+    setTimeout(() => { chatInput.focus(); }, 100);
   }
 
   function handleChatKeydown(e) {
