@@ -892,6 +892,14 @@
     font-size: 18px;
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #detailPanel.open ~ .detail-panel-close {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
   .detail-panel-close:hover {
     border-color: #ffd479;
@@ -3347,10 +3355,6 @@
 
 <!-- 全屏详情面板 -->
 <div id="detailPanel">
-  <button class="detail-panel-close" onclick="closeDetailPanel()" aria-label="关闭">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-  </button>
-
   <!-- 南仁东完整详情 -->
   <div id="detailNanRendong" class="detail-panel-inner" style="display:none;">
     <div class="detail-banner" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('images/nanrendong.jpg'); background-size: cover; background-position: center 25%;">
@@ -6578,6 +6582,12 @@
     </div>
   </div>
 </div>
+
+<!-- 详情面板关闭按钮（置于面板外，避免随内容滚动） -->
+<button class="detail-panel-close" onclick="closeDetailPanel()" aria-label="关闭">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+</button>
+
 <!-- 对话按钮 -->
 <button id="chatToggleBtn" class="chat-button" onclick="openChatModal()" aria-label="与科学家对话">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
