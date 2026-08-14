@@ -141,6 +141,8 @@
     align-items: center;
     gap: 6px;
     list-style: none;
+    flex-wrap: nowrap;
+    white-space: nowrap;
   }
   .nav-link {
     position: relative;
@@ -152,6 +154,8 @@
     font-weight: 400;
     transition: color 0.3s ease;
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
   .nav-link::before {
     content: '';
@@ -1983,6 +1987,13 @@
   }
 
   /* ============ 响应式 ============ */
+  /* 互动屏 / 中等宽度（900px ~ 1280px）：压缩导航间距，避免换行 */
+  @media (min-width: 901px) and (max-width: 1280px) {
+    .nav { padding-left: calc(44px + 90px); padding-right: 24px; }
+    .nav.scrolled { padding-left: calc(44px + 90px); padding-right: 24px; }
+    .nav-link { padding: 8px 10px; font-size: 13px; letter-spacing: 0.5px; }
+    .nav-links { gap: 2px; }
+  }
   @media (max-width: 900px) {
     .nav { padding: 14px 24px; }
     .nav.scrolled { padding: 10px 24px; }
