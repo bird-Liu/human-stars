@@ -141,72 +141,6 @@ body::after {
 .journey-panel.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(12px);} to { opacity: 1; transform: translateY(0);} }
 
-/* 对战 */
-.battle-stage {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 24px;
-  align-items: center;
-  margin-bottom: 32px;
-}
-.battle-card {
-  background: rgba(8, 6, 2, 0.72);
-  border: 1px solid var(--border-faint);
-  border-radius: 20px;
-  padding: 28px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.battle-card:hover { border-color: var(--neon-cyan); transform: translateY(-4px); }
-.battle-card.selected {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 30px rgba(255, 212, 121, 0.15);
-}
-.battle-avatar {
-  width: 80px; height: 80px;
-  border-radius: 50%;
-  margin: 0 auto 16px;
-  background-size: cover;
-  background-position: center;
-  border: 2px solid var(--border-faint);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px; color: var(--text-primary);
-}
-.battle-name { font-family: var(--font-serif); font-size: 22px; margin-bottom: 6px; }
-.battle-title { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
-.battle-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 12px; color: var(--text-secondary); }
-.battle-vs {
-  font-family: var(--font-display);
-  font-size: 28px;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 20px rgba(255, 212, 121, 0.4);
-}
-.battle-actions { text-align: center; margin-bottom: 24px; }
-.battle-btn {
-  padding: 12px 36px;
-  background: linear-gradient(90deg, rgba(255,212,121,0.2), rgba(255,212,121,0.1));
-  border: 1px solid var(--neon-cyan);
-  border-radius: 40px;
-  color: var(--neon-cyan);
-  font-family: var(--font-serif);
-  font-size: 15px;
-  letter-spacing: 2px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.battle-btn:hover { background: rgba(255,212,121,0.3); box-shadow: 0 0 24px rgba(255, 212, 121, 0.2); }
-.battle-result {
-  background: rgba(8, 6, 2, 0.72);
-  border: 1px solid var(--border-faint);
-  border-radius: 16px;
-  padding: 24px;
-  text-align: center;
-  min-height: 120px;
-}
-.battle-result-title { font-family: var(--font-serif); font-size: 18px; color: var(--neon-cyan); margin-bottom: 12px; }
-.battle-result-text { font-size: 14px; color: var(--text-secondary); line-height: 1.8; }
-
 /* 公式收藏墙 */
 .formula-grid {
   display: grid;
@@ -297,12 +231,25 @@ body::after {
 }
 
 @media (max-width: 768px) {
-  .battle-stage { grid-template-columns: 1fr; }
-  .battle-vs { order: -1; margin: 12px 0; }
   .page { padding-top: 100px; }
 }
 </style>
-</head>
+<!-- 百度统计 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?BAIDU_TONGJI_ID";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- Vercel Analytics -->
+    <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
 <body>
 <div class="ambient-glow"></div>
 <a class="back-link" href="index.html" onclick="sessionStorage.setItem('sm_return','1')">
@@ -315,40 +262,13 @@ body::after {
   <div class="page-subtitle">挑战 · 收藏 · 每日谜题</div>
 
   <div class="journey-tabs">
-    <div class="journey-tab active" data-tab="battle" onclick="switchTab('battle')">科学家对战</div>
-    <div class="journey-tab" data-tab="formula" onclick="switchTab('formula')">公式收藏墙</div>
+    <div class="journey-tab" onclick="location.href='quiz.html'">科学人格测试</div>
+    <div class="journey-tab active" data-tab="formula" onclick="switchTab('formula')">公式收藏墙</div>
     <div class="journey-tab" data-tab="puzzle" onclick="switchTab('puzzle')">每日科学谜题</div>
   </div>
 
-  <!-- 对战 -->
-  <div class="journey-panel active" id="panel-battle">
-    <div class="battle-stage">
-      <div class="battle-card" id="battleLeft" onclick="selectBattleSide('left')">
-        <div class="battle-avatar" id="battleLeftAvatar">?</div>
-        <div class="battle-name" id="battleLeftName">点击选择</div>
-        <div class="battle-title" id="battleLeftTitle">——</div>
-        <div class="battle-stats" id="battleLeftStats"></div>
-      </div>
-      <div class="battle-vs">VS</div>
-      <div class="battle-card" id="battleRight" onclick="selectBattleSide('right')">
-        <div class="battle-avatar" id="battleRightAvatar">?</div>
-        <div class="battle-name" id="battleRightName">点击选择</div>
-        <div class="battle-title" id="battleRightTitle">——</div>
-        <div class="battle-stats" id="battleRightStats"></div>
-      </div>
-    </div>
-    <div class="battle-actions">
-      <button class="battle-btn" onclick="randomBattlePair()">随机配对</button>
-      <button class="battle-btn" onclick="startBattle()" style="margin-left:12px;">开始比拼</button>
-    </div>
-    <div class="battle-result" id="battleResult">
-      <div class="battle-result-title">选择两位科学巨匠，开启跨时空对决</div>
-      <div class="battle-result-text">系统将从影响力、论文贡献、学生传承、寿命跨度、诺奖荣誉五个维度进行趣味 PK。</div>
-    </div>
-  </div>
-
   <!-- 公式墙 -->
-  <div class="journey-panel" id="panel-formula">
+  <div class="journey-panel active" id="panel-formula">
     <div class="formula-progress">已收藏 <span id="formulaCount">0</span> / <span id="formulaTotal">0</span> 个科学印记</div>
     <div class="formula-grid" id="formulaGrid"></div>
   </div>
@@ -365,7 +285,6 @@ body::after {
 
 <script src="scientists_all.js"></script>
 <script src="scientists_meta.js"></script>
-<script src="scientists_relations.js"></script>
 <script>
 (function(){
   'use strict';
@@ -379,95 +298,12 @@ body::after {
 
   function escapeHtml(t){ return (t||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c];}); }
 
-  function parseYear(years){
-    var m = String(years||'').match(/(\d{4})/);
-    return m ? parseInt(m[1],10) : null;
-  }
-
-  function getStats(s){
-    var rels = (window.__scientistsRelations || {})[s.key] || [];
-    var papers = (s.papers || []).length;
-    var honors = (s.honors || '').split('\n').filter(function(x){return x.trim();}).length;
-    return {
-      influence: Math.min(100, Math.round((rels.length * 12) + 20)),
-      papers: papers,
-      students: Math.min(100, Math.round(rels.filter(function(r){return r.type==='student';}).length * 25 + 10)),
-      lifespan: parseYear(s.years) ? Math.min(100, Math.round((new Date().getFullYear() - parseYear(s.years)) * 0.6)) : 50,
-      honors: Math.min(100, honors * 15 + 20)
-    };
-  }
-
   // ===== Tabs =====
   window.switchTab = function(tab){
     document.querySelectorAll('.journey-tab').forEach(function(el){ el.classList.toggle('active', el.dataset.tab===tab); });
     document.querySelectorAll('.journey-panel').forEach(function(el){ el.classList.toggle('active', el.id==='panel-'+tab); });
     if (tab==='formula') renderFormulaWall();
     if (tab==='puzzle') initPuzzle();
-  };
-
-  // ===== Battle =====
-  var battleLeft = null, battleRight = null, selectingSide = null;
-  window.selectBattleSide = function(side){
-    selectingSide = side;
-    var names = scientistsData.map(function(s,i){ return (i+1)+'. '+s.name; }).join('\n');
-    var input = prompt('输入科学家编号或姓名：\n' + names.substring(0,800) + '\n…');
-    if (!input) return;
-    var s = null;
-    var num = parseInt(input,10);
-    if (!isNaN(num) && scientistsData[num-1]) s = scientistsData[num-1];
-    if (!s) s = scientistsData.find(function(x){ return x.name===input || x.key===input; });
-    if (!s) { alert('未找到该科学家'); return; }
-    if (side==='left') { battleLeft=s; } else { battleRight=s; }
-    renderBattleCards();
-  };
-  window.randomBattlePair = function(){
-    if (scientistsData.length < 2) return;
-    battleLeft = scientistsData[Math.floor(Math.random()*scientistsData.length)];
-    do { battleRight = scientistsData[Math.floor(Math.random()*scientistsData.length)]; } while (battleRight===battleLeft);
-    renderBattleCards();
-  };
-  function renderBattleCards(){
-    ['left','right'].forEach(function(side){
-      var s = side==='left'?battleLeft:battleRight;
-      var avatar = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Avatar');
-      var name = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Name');
-      var title = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Title');
-      var stats = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1)+'Stats');
-      var card = document.getElementById('battle'+side.charAt(0).toUpperCase()+side.slice(1));
-      if (!s) {
-        avatar.textContent='?'; avatar.style.backgroundImage='';
-        name.textContent='点击选择'; title.textContent='——'; stats.innerHTML='';
-        card.classList.remove('selected'); return;
-      }
-      card.classList.add('selected');
-      avatar.textContent='';
-      avatar.style.backgroundImage = "url('images/"+s.key+".jpg')";
-      name.textContent = s.name;
-      title.textContent = s.title || s.category || '科学巨匠';
-      var st = getStats(s);
-      stats.innerHTML = '<div>影响力 '+st.influence+'</div><div>论文 '+st.papers+'</div><div>传承 '+st.students+'</div><div>寿命分 '+st.lifespan+'</div>';
-    });
-  }
-  window.startBattle = function(){
-    if (!battleLeft || !battleRight) { alert('请先选择两位科学家'); return; }
-    var a=getStats(battleLeft), b=getStats(battleRight);
-    var scoreA=0, scoreB=0, details=[];
-    function cmp(label, va, vb){
-      if (va>vb) { scoreA++; details.push(label+'：'+battleLeft.name+' 胜出'); }
-      else if (vb>va) { scoreB++; details.push(label+'：'+battleRight.name+' 胜出'); }
-      else { details.push(label+'：势均力敌'); }
-    }
-    cmp('影响力', a.influence, b.influence);
-    cmp('论文著作', a.papers, b.papers);
-    cmp('学生传承', a.students, b.students);
-    cmp('寿命跨度', a.lifespan, b.lifespan);
-    cmp('荣誉成就', a.honors, b.honors);
-    var winner = scoreA>scoreB ? battleLeft : (scoreB>scoreA ? battleRight : null);
-    var battleCount = parseInt(localStorage.getItem('star_battle_count') || '0', 10) + 1;
-    localStorage.setItem('star_battle_count', String(battleCount));
-    document.getElementById('battleResult').innerHTML =
-      '<div class="battle-result-title">'+(winner ? '🏆 '+winner.name+' 获胜' : '⚖️ 平局')+'</div>'+
-      '<div class="battle-result-text">'+battleLeft.name+' '+scoreA+' : '+scoreB+' '+battleRight.name+'<br>'+details.join(' · ')+'</div>';
   };
 
   // ===== Formula Wall =====
@@ -596,7 +432,7 @@ body::after {
   window.initPuzzle = initPuzzle;
 
   // init
-  randomBattlePair();
+  renderFormulaWall();
 })();
 </script>
 </body>

@@ -3112,7 +3112,22 @@
       .hero-action-btn { padding: 8px 14px; font-size: 12px; }
     }
   </style>
-</head>
+<!-- 百度统计 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?BAIDU_TONGJI_ID";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- Vercel Analytics -->
+    <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
 <body>
 <div class="ambient-glow"></div>
 <canvas class="meteor-canvas" id="meteorCanvas"></canvas>
@@ -9548,6 +9563,14 @@
         if (m.timeline && (!star.timeline || !star.timeline.length)) star.timeline = m.timeline;
       }
     });
+  })();
+
+  // ===== 去敏感化：移除在世科学家（years 缺失死亡年份，如 "1930 — · CHINA"） =====
+  (function removeLivingScientists() {
+    for (let i = scientistsData.length - 1; i >= 0; i--) {
+      const y = String((scientistsData[i] && scientistsData[i].years) || '');
+      if (!/\d{4}\s*—\s*\d{4}/.test(y)) scientistsData.splice(i, 1);
+    }
   })();
 
   /* 随机分布星辰位置（每次刷新都不同）—— 已停用

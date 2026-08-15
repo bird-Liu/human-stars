@@ -331,7 +331,22 @@ body::after {
   .stats-row { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
-</head>
+<!-- 百度统计 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?BAIDU_TONGJI_ID";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- Vercel Analytics -->
+    <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
 <body>
 
 <div class="ambient-glow"></div>
@@ -388,7 +403,6 @@ body::after {
     <div class="progress-text">已了解 <span id="viewedCount">0</span> / <span id="totalCount">0</span> 位科学巨匠</div>
     <div class="stats-row">
       <div class="stat-box"><div class="stat-num" id="statFormulas">0</div><div class="stat-label">收藏公式</div></div>
-      <div class="stat-box"><div class="stat-num" id="statBattles">0</div><div class="stat-label">对战次数</div></div>
       <div class="stat-box"><div class="stat-num" id="statStreak">0</div><div class="stat-label">谜题连胜</div></div>
       <div class="stat-box"><div class="stat-num" id="statWishes">0</div><div class="stat-label">星光留言</div></div>
     </div>
@@ -455,7 +469,6 @@ body::after {
     // 统计
     var viewed = getStat('star_viewed_scientists', []);
     var formulas = getStat('star_formula_collected', []);
-    var battles = getStatNum('star_battle_count', 0);
     var streak = getStatNum('star_puzzle_streak', 0);
     var wishes = getStat('star_wishes', []);
 
@@ -463,12 +476,11 @@ body::after {
     document.getElementById('totalCount').textContent = totalScientists;
     document.getElementById('exploreBar').style.width = Math.min(100, Math.round(viewed.length / totalScientists * 100)) + '%';
     document.getElementById('statFormulas').textContent = formulas.length;
-    document.getElementById('statBattles').textContent = battles;
     document.getElementById('statStreak').textContent = streak;
     document.getElementById('statWishes').textContent = wishes.length;
 
     // 等级
-    var exp = viewed.length + formulas.length * 2 + battles * 3 + streak + wishes.length;
+    var exp = viewed.length + formulas.length * 2 + streak + wishes.length;
     var level = 1;
     if (exp >= 100) level = 5;
     else if (exp >= 60) level = 4;
@@ -484,7 +496,6 @@ body::after {
       { id: 'all_views', icon: '🌟', name: '群星巡礼', desc: '查看全部科学家', cond: viewed.length >= totalScientists },
       { id: 'collector', icon: '📜', name: '公式收藏家', desc: '收藏5个科学公式', cond: formulas.length >= 5 },
       { id: 'master', icon: '🏆', name: '公式大师', desc: '收藏30个科学公式', cond: formulas.length >= 30 },
-      { id: 'duelist', icon: '⚔️', name: '科学对决', desc: '完成3次科学家对战', cond: battles >= 3 },
       { id: 'scholar', icon: '🧩', name: '智慧连击', desc: '谜题连胜3题', cond: streak >= 3 },
       { id: 'wisher', icon: '✨', name: '星光寄语', desc: '在星之所愿留言', cond: wishes.length >= 1 },
       { id: 'veteran', icon: '🚀', name: '资深星旅人', desc: '探索等级 LV.3+', cond: level >= 3 },
@@ -567,7 +578,6 @@ body::after {
     // 游客态：读取全局 localStorage（不区分用户）
     var viewed = getStat('star_viewed_scientists', []);
     var formulas = getStat('star_formula_collected', []);
-    var battles = getStatNum('star_battle_count', 0);
     var streak = getStatNum('star_puzzle_streak', 0);
     var wishes = getStat('star_wishes', []);
 
@@ -575,12 +585,11 @@ body::after {
     document.getElementById('dashName').textContent = '星海旅人';
     document.getElementById('dashUser').textContent = '@guest';
     document.getElementById('dashCreated').textContent = '游客模式 · 数据仅保存在本设备';
-    document.getElementById('dashLevel').textContent = '探索等级 游客  ·  星光值 ' + (viewed.length + formulas.length * 2 + battles * 3 + streak + wishes.length);
+    document.getElementById('dashLevel').textContent = '探索等级 游客  ·  星光值 ' + (viewed.length + formulas.length * 2 + streak + wishes.length);
 
     document.getElementById('viewedCount').textContent = viewed.length;
     document.getElementById('exploreBar').style.width = Math.min(100, Math.round(viewed.length / totalScientists * 100)) + '%';
     document.getElementById('statFormulas').textContent = formulas.length;
-    document.getElementById('statBattles').textContent = battles;
     document.getElementById('statStreak').textContent = streak;
     document.getElementById('statWishes').textContent = wishes.length;
 

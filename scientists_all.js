@@ -2340,3 +2340,11 @@ var allScientistsData = [
     "contrib": "1. 表示学习发展分布式表示、词嵌入和循环神经网络，推动自然语言处理革命。2. 生成模型提出去噪自编码器、生成对抗网络等思想，推动无监督学习和生成模型发展。3. 图灵奖2018年与辛顿、杨立昆共获图灵奖，表彰对深度学习的奠基性贡献。"
   }
 ];
+
+// ===== 去敏感化：移除在世科学家（years 缺失死亡年份，如 "1930 — · CHINA"） =====
+if (typeof allScientistsData !== 'undefined' && Array.isArray(allScientistsData)) {
+  for (var __i = allScientistsData.length - 1; __i >= 0; __i--) {
+    var __y = String((allScientistsData[__i] && allScientistsData[__i].years) || '');
+    if (!/\d{4}\s*—\s*\d{4}/.test(__y)) allScientistsData.splice(__i, 1);
+  }
+}

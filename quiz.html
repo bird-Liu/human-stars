@@ -304,7 +304,22 @@ body::after {
   .result-name { font-size: 28px; }
 }
 </style>
-</head>
+<!-- 百度统计 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?BAIDU_TONGJI_ID";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- Vercel Analytics -->
+    <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
 <body>
 <div class="ambient-glow"></div>
 
@@ -324,7 +339,7 @@ body::after {
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       </div>
       <div class="start-title">发现你的科学灵魂</div>
-      <div class="start-desc">回答 8 个关于思维方式与价值观的问题，<br>我们将把你对应到 167 位科学巨匠中最像的那一位。</div>
+      <div class="start-desc">回答 8 个关于思维方式与价值观的问题，<br>我们将把你对应到群星中最像你的那一位科学巨匠。</div>
       <button class="start-btn" onclick="startQuiz()">开始测试</button>
     </div>
   </div>
@@ -499,7 +514,13 @@ function showResult() {
     return { key: k, score: userScores[k] };
   }).sort(function(a, b) { return b.score - a.score; });
 
-  var topKey = entries.length ? entries[0].key : null;
+  var topKey = null;
+  for (var i = 0; i < entries.length; i++) {
+    if (scientistsData.some(function(x) { return x.key === entries[i].key; })) {
+      topKey = entries[i].key;
+      break;
+    }
+  }
   var s = scientistsData.find(function(x) { return x.key === topKey; }) || scientistsData[Math.floor(Math.random() * scientistsData.length)];
 
   var quote = (s.quote || '').split('\n').map(function(q) { return q.trim(); }).filter(function(q) { return q; })[0] || '——';

@@ -375,7 +375,22 @@ body::after {
   opacity: 0.5;
 }
 </style>
-</head>
+<!-- 百度统计 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?BAIDU_TONGJI_ID";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- Vercel Analytics -->
+    <script>
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
 <body>
 <div class="ambient-glow"></div>
 
@@ -481,6 +496,16 @@ if (typeof window.__extraScientistsData !== 'undefined') {
     };
   }));
 }
+
+// ===== 去敏感化：移除在世科学家（years 缺失死亡年份，如 "1930 — · CHINA"） =====
+(function removeLivingScientists() {
+  for (var i = scientistsData.length - 1; i >= 0; i--) {
+    var y = String((scientistsData[i] && scientistsData[i].years) || '');
+    if (!/\d{4}\s*—\s*\d{4}/.test(y)) scientistsData.splice(i, 1);
+  }
+  var hint = document.getElementById('searchPageHint');
+  if (hint) hint.textContent = scientistsData.length + '位科学巨匠 · 静候探寻';
+})();
 
 function doSearch() {
   var query = document.getElementById('searchInput').value.trim().toLowerCase();
