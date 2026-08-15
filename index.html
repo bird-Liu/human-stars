@@ -13180,10 +13180,8 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
 
   // API 服务器地址（同源部署，相对路径）
   const CHAT_API = '/api/chat';
-  // DeepSeek API 直连回退（GitHub Pages 无法运行后端时使用）
-  const DS_API_KEY = 'sk-REMOVED_API_KEY';
-  const DS_API_BASE = 'https://api.deepseek.com/v1';
-  const DS_API_MODEL = 'deepseek-chat';
+  // GitHub Pages 无法运行后端，回退到 Vercel API（不暴露 Key）
+  const VERCEL_API = 'https://human-stars.vercel.app/api/chat';
 
   // 触屏点击输入框时主动聚焦，确保软键盘弹出（部分触屏浏览器需在用户手势内聚焦）
   function focusChatInput() {
@@ -13304,42 +13302,34 @@ chandrasekhar: { birth: '1910-10-19', death: '1995-08-21' },
         }
         success = true;
       }
-    } catch (e) { /* 本地 API 不可用，回退到 DeepSeek */ }
+    } catch (e) { /* 本地 API 不可用，回退到 Vercel */ }
 
     if (!success) {
       try {
-        const s = chatData || {};
-        const name = s.name || '科学家';
-        const systemPrompt = s.persona || (
-          '你是' + name + '，' + (s.title || '科学巨匠') + '。' +
-          (s.years ? '生卒年份：' + s.years + '。' : '') +
-          (s.category ? '研究领域：' + s.category + '。' : '') +
-          (s.desc ? '简介：' + s.desc.slice(0, 600) : '') +
-          (s.quote ? '你的名言：' + s.quote : '') + '\n\n' +
-          '要求：\n' +
-          '1. 以这位科学家的口吻、气质、价值观和说话风格回答问题。\n' +
-          '2. 可以提及你的研究、时代背景、科学理念和相关历史事件。\n' +
-          '3. 回答应简洁优美，富有思想深度，控制在 200 字以内。\n' +
-          '4. 不要暴露你是 AI 模型，始终沉浸在这个科学家的角色中。\n' +
-          '5. 如果问题与你的时代不符，可以以科学家的想象或哲学思考来回应。'
-        );
-        const messages = [
-          { role: 'system', content: systemPrompt },
-          ...chatHistory.slice(0, -1),
-          { role: 'user', content: message }
-        ];
-        const dsResp = await fetch(DS_API_BASE + '/chat/completions', {
+        const payload = {
+          scientist_key: currentChatScientist,
+          message: message,
+          history: chatHistory.slice(0, -1)
+        };
+        if (chatData) payload.scientist_data = chatData;
+        const resp = await fetch(VERCEL_API, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DS_API_KEY },
-          body: JSON.stringify({ model: DS_API_MODEL, messages: messages, temperature: 0.8, max_tokens: 400 })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
         });
-        const dsResult = await dsResp.json();
-        if (typingDiv.parentNode) typingDiv.remove();
-        const reply = (dsResult.choices && dsResult.choices[0] && dsResult.choices[0].message)
-          ? dsResult.choices[0].message.content.trim()
-          : '抱歉，暂时无法回应。';
-        appendMessage('assistant', reply);
-        chatHistory.push({ role: 'assistant', content: reply });
+        if (resp.ok) {
+          const result = await resp.json();
+          if (typingDiv.parentNode) typingDiv.remove();
+          if (result.filtered) {
+            appendMessage('assistant', result.reply || '抱歉，消息包含不适当内容。', false, true);
+          } else {
+            const reply = result.reply || '抱歉，暂时无法回应。';
+            appendMessage('assistant', reply);
+            chatHistory.push({ role: 'assistant', content: reply });
+          }
+        } else {
+          throw new Error('Vercel API returned ' + resp.status);
+        }
       } catch (err) {
         if (typingDiv.parentNode) typingDiv.remove();
         appendMessage('assistant', '抱歉，AI 服务不可用。请稍后重试。', false, true);

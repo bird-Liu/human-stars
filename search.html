@@ -612,9 +612,8 @@ function generateScientist(name) {
   if (loading) loading.classList.add('visible');
   if (preview) preview.innerHTML = '';
 
-  // 回退用的 DeepSeek 配置
-  var DS_KEY = 'sk-REMOVED_API_KEY';
-  var DS_BASE = 'https://api.deepseek.com/v1';
+  // 回退到 Vercel API（不暴露 Key）
+  var VERCEL_GEN_API = 'https://human-stars.vercel.app/api/generate-scientist';
 
   var categories = ['物理学', '天文学', '数学', '生命科学', '化学', '工程学', '计算机科学', '地球科学', '其他'];
   var sysPrompt = "你是一位科学史专家。用户会给你一个科学家姓名，请生成该科学家的结构化资料。如果该姓名确实是某位真实存在的科学家，请基于史实生成准确资料；如果无法确认或可能是虚构人物，请诚实地以「未能找到该科学家的可靠记载」为由拒绝生成。所有字段必须为中文（英文姓名除外），言简意赅，符合历史事实。";
@@ -724,27 +723,16 @@ function generateScientist(name) {
     if (loading) loading.classList.remove('visible');
   })
   .catch(function() {
-    // 本地 API 失败，回退到 DeepSeek 直连
-    fetch(DS_BASE + '/chat/completions', {
+    // 本地 API 失败，回退到 Vercel API
+    fetch(VERCEL_GEN_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + DS_KEY },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: sysPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 1200,
-        response_format: { type: 'json_object' }
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name })
     })
     .then(function(res) { return res.json(); })
-    .then(function(dsResult) {
-      var content = (dsResult.choices && dsResult.choices[0] && dsResult.choices[0].message)
-        ? dsResult.choices[0].message.content.trim() : '';
-      if (!content) { showError('AI 返回为空'); return; }
-      parseAndShow(content);
+    .then(function(data) {
+      if (data.error) { showError(data.error); return; }
+      parseAndShow(JSON.stringify(data.scientist));
     })
     .catch(function(err) {
       var msg = err && err.message ? err.message : '网络请求失败';
