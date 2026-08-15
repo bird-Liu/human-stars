@@ -18,7 +18,7 @@ try {
 }
 
 module.exports = async function handler(req, res) {
-  // CORS 头
+  // CORS 头 - 允许 GitHub Pages 跨域访问
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
