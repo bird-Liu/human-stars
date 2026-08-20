@@ -17,8 +17,13 @@ try {
   console.error('Load scientists_data.json failed:', e.message);
 }
 
+// SSE 辅助：发送一条事件
+function sendSSE(res, event, data) {
+  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
 module.exports = async function handler(req, res) {
-  // CORS 头 - 允许 GitHub Pages 跨域访问
+  // CORS 头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -60,7 +65,7 @@ module.exports = async function handler(req, res) {
     baseURL: apiBase
   });
 
-  // 构建科学家人设：优先用前端传来的完整数据，否则根据 key 查本地数据
+  // 构建科学家人设
   const s = scientist_data || (scientist_key ? scientistsMap[scientist_key] || {} : {});
   const name = s.name || '科学家';
   const title = s.title || '科学巨匠';
@@ -85,23 +90,34 @@ module.exports = async function handler(req, res) {
     { role: 'user', content: message }
   ];
 
+  // 设置 SSE 响应头
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+
   try {
-    const completion = await client.chat.completions.create({
+    const stream = await client.chat.completions.create({
       model: apiModel,
       messages,
       temperature: 0.8,
-      max_tokens: 400
+      max_tokens: 400,
+      stream: true
     });
 
-    const reply = completion.choices && completion.choices[0] && completion.choices[0].message && completion.choices[0].message.content
-      ? completion.choices[0].message.content.trim()
-      : '抱歉，暂时无法回应。';
-    return res.json({ reply });
+    for await (const chunk of stream) {
+      const delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
+      if (delta && delta.content) {
+        sendSSE(res, 'token', { content: delta.content });
+      }
+    }
+
+    sendSSE(res, 'done', {});
+    res.end();
   } catch (err) {
     console.error('AI API error:', err);
-    return res.status(500).json({
-      error: err.message,
-      reply: '抱歉，AI 服务暂时不可用，请稍后再试。'
-    });
+    // 如果已经开始流式输出，发送错误事件
+    sendSSE(res, 'error', { error: err.message, reply: '抱歉，AI 服务暂时不可用，请稍后再试。' });
+    res.end();
   }
 };
